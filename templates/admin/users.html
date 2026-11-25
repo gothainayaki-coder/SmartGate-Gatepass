@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users – Admin{% endblock %}
+{% block page_title %}Institutional User Management{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Administrator Console</div>
+<a href="{{ url_for('admin_dashboard') }}"><span class="nav-icon">📊</span> Overview Dashboard</a>
+<a href="{{ url_for('admin_users') }}" class="active"><span class="nav-icon">👥</span> User Management</a>
+<a href="{{ url_for('admin_user_new') }}"><span class="nav-icon">➕</span> Add Staff User</a>
+<a href="{{ url_for('admin_departments') }}"><span class="nav-icon">🏫</span> Departments (5)</a>
+<a href="{{ url_for('admin_courses') }}"><span class="nav-icon">🎓</span> Courses (13)</a>
+<a href="{{ url_for('admin_classes') }}"><span class="nav-icon">📚</span> Annual Classes</a>
+<a href="{{ url_for('admin_tutor_assignment') }}"><span class="nav-icon">👩‍🏫</span> Tutor Assignment</a>
+<a href="{{ url_for('admin_hod_assignment') }}"><span class="nav-icon">🏛️</span> HOD Assignment</a>
+<a href="{{ url_for('admin_reports') }}"><span class="nav-icon">📑</span> Master Reports</a>
+<a href="{{ url_for('admin_audit_logs') }}"><span class="nav-icon">📜</span> Institutional Audit</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">User Management ({{ users|length }} Accounts)</h1>
+        <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">
+            Manage credentials, permissions, and departmental assignments across the 5 institutional roles
+        </p>
+    </div>
+    <a href="{{ url_for('admin_user_new') }}" class="btn btn-primary btn-sm" style="font-weight:700;">➕ Add New Staff Account</a>
+</div>
+
+<!-- Role Filters & Search -->
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:16px 20px;margin-bottom:24px;">
+    <form method="GET" action="{{ url_for('admin_users') }}" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="{{ url_for('admin_users', role='ALL') }}" class="btn btn-sm {% if current_role == 'all' %}btn-primary{% else %}btn-outline{% endif %}">All Users</a>
+            <a href="{{ url_for('admin_users', role='student') }}" class="btn btn-sm {% if current_role == 'student' %}btn-primary{% else %}btn-outline{% endif %}">Students</a>
+            <a href="{{ url_for('admin_users', role='tutor') }}" class="btn btn-sm {% if current_role == 'tutor' %}btn-primary{% else %}btn-outline{% endif %}">Faculty / Tutors</a>
+            <a href="{{ url_for('admin_users', role='hod') }}" class="btn btn-sm {% if current_role == 'hod' %}btn-primary{% else %}btn-outline{% endif %}">HODs</a>
+            <a href="{{ url_for('admin_users', role='guard') }}" class="btn btn-sm {% if current_role == 'guard' %}btn-primary{% else %}btn-outline{% endif %}">Guards</a>
+            <a href="{{ url_for('admin_users', role='admin') }}" class="btn btn-sm {% if current_role == 'admin' %}btn-primary{% else %}btn-outline{% endif %}">Admins</a>
+            <a href="{{ url_for('admin_users', role='pending') }}" class="btn btn-sm {% if current_role == 'pending' %}btn-primary{% else %}btn-outline{% endif %}" style="{% if current_role == 'pending' %}background:#d97706;border-color:#d97706;color:#fff;{% else %}color:#d97706;border-color:#f59e0b;{% endif %}">
+                ⏳ Pending Registrations
+            </a>
+        </div>
+        <div style="display:flex;gap:8px;max-width:320px;width:100%;">
+            <input type="text" name="q" class="form-control" placeholder="Search username, name, reg no..." value="{{ search_q }}">
+            <button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">Search</button>
+            {% if search_q %}
+            <a href="{{ url_for('admin_users') }}" class="btn btn-outline btn-sm">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Users Table -->
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+    <div class="card-body" style="padding:0;">
+        {% if users %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username / Ident</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Department</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr {% if u['status'] == 'PENDING' %}style="background:#fffbeb;"{% endif %}>
+                        <td>
+                            <strong>{{ u['username'] }}</strong>
+                            <div style="font-size:0.75rem;color:#64748b;font-family:monospace;">{{ u['ident_number'] }}</div>
+                        </td>
+                        <td style="font-weight:700;color:#0f172a;">{{ u['display_name'] }}</td>
+                        <td>
+                            {% if u['role'] == 'admin' %}<span class="badge" style="background:#0f172a;color:#fff;">ADMIN</span>
+                            {% elif u['role'] == 'student' %}<span class="badge badge-normal">STUDENT</span>
+                            {% elif u['role'] == 'tutor' %}<span class="badge" style="background:#0b5738;color:#fff;">FACULTY / TUTOR</span>
+                            {% elif u['role'] == 'hod' %}<span class="badge" style="background:#ea580c;color:#fff;">HOD</span>
+                            {% elif u['role'] == 'guard' %}<span class="badge" style="background:#0284c7;color:#fff;">GUARD</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ u['dept_name'] or '—' }}</td>
+                        <td>{{ u['phone'] }}</td>
+                        <td>
+                            {% if u['status'] == 'PENDING' %}
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <span class="badge" style="background:#f59e0b;color:#fff;font-size:0.72rem;">⏳ PENDING</span>
+                                <a href="{{ url_for('admin_approve_user', user_id=u['id']) }}" class="btn btn-sm" style="background:#16a34a;color:#fff;padding:2px 8px;font-size:0.75rem;border-radius:4px;" title="Approve and Activate">✓ Approve</a>
+                                <a href="{{ url_for('admin_reject_user', user_id=u['id']) }}" class="btn btn-sm" style="background:#dc2626;color:#fff;padding:2px 8px;font-size:0.75rem;border-radius:4px;" title="Reject and Deactivate" onclick="return confirm('Reject registration for {{ u['username'] }}?');">✕ Reject</a>
+                            </div>
+                            {% else %}
+                            <form method="POST" action="{{ url_for('admin_user_toggle_status', user_id=u['id']) }}" style="display:inline;">
+                                {% if u['status'] == 'ACTIVE' %}
+                                <button type="submit" class="badge badge-approved" style="border:none;cursor:pointer;" title="Click to Deactivate">
+                                    ✓ ACTIVE
+                                </button>
+                                {% else %}
+                                <button type="submit" class="badge badge-rejected" style="border:none;cursor:pointer;" title="Click to Activate">
+                                    ✕ INACTIVE
+                                </button>
+                                {% endif %}
+                            </form>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display:flex;gap:6px;">
+                                <a href="{{ url_for('admin_user_edit', user_id=u['id']) }}" class="btn btn-outline btn-sm">Edit</a>
+                                <button onclick="promptResetPassword({{ u['id'] }}, '{{ u['username'] }}')" class="btn btn-outline btn-sm" style="color:#d97706;border-color:#fcd34d;">Reset Pwd</button>
+                                {% if u['id'] != session['user_id'] %}
+                                <form method="POST" action="{{ url_for('admin_user_delete', user_id=u['id']) }}" style="display:inline;" onsubmit="return confirm('Delete user {{ u['username'] }}?');">
+                                    <button type="submit" class="btn btn-outline btn-sm" style="color:#dc2626;border-color:#fca5a5;">Del</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:48px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:10px;">👥</div>
+            <h3 style="color:#0f172a;font-weight:800;margin-bottom:6px;">No Users Found</h3>
+            <p style="color:#64748b;font-size:0.88rem;margin:0;">No accounts found matching the filter.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal/Script for Admin Password Reset -->
+<form id="adminResetForm" method="POST" action="" style="display:none;">
+    <input type="hidden" name="new_password" id="adminNewPasswordInput">
+</form>
+
+<script>
+function promptResetPassword(userId, username) {
+    const newPwd = prompt(`Enter new password for user '${username}' (Minimum 4 characters):`, "staff123");
+    if (newPwd && newPwd.trim().length >= 4) {
+        const form = document.getElementById('adminResetForm');
+        form.action = `/admin/user/${userId}/reset-password`;
+        document.getElementById('adminNewPasswordInput').value = newPwd.trim();
+        form.submit();
+    } else if (newPwd !== null) {
+        alert('Password must be at least 4 characters long.');
+    }
+}
+</script>
+{% endblock %}

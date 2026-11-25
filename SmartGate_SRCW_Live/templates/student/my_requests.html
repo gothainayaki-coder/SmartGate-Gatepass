@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}My Gate Passes{% endblock %}
+{% block page_title %}My Gate Passes{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Student Portal</div>
+<a href="{{ url_for('student_dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+<a href="{{ url_for('student_new_request') }}"><span class="nav-icon">➕</span> Apply Gate Pass</a>
+<a href="{{ url_for('student_my_requests') }}" class="active"><span class="nav-icon">📋</span> My Gate Passes</a>
+<a href="{{ url_for('student_history') }}"><span class="nav-icon">📜</span> Exit History</a>
+<a href="{{ url_for('student_profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">📋 My Gate Pass Applications</h1>
+        <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">Track verification progress from Class Tutor and Department HOD</p>
+    </div>
+    <a href="{{ url_for('student_new_request') }}" class="btn btn-primary btn-sm" style="font-weight:700;">
+        ➕ Apply New Pass
+    </a>
+</div>
+
+<!-- Filter Tabs -->
+<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+    <a href="{{ url_for('student_my_requests', status='ALL') }}" class="btn btn-sm {% if current_filter == 'ALL' %}btn-primary{% else %}btn-outline{% endif %}">All Passes</a>
+    <a href="{{ url_for('student_my_requests', status='PENDING') }}" class="btn btn-sm {% if current_filter == 'PENDING' %}btn-primary{% else %}btn-outline{% endif %}">⏳ Under Review</a>
+    <a href="{{ url_for('student_my_requests', status='APPROVED') }}" class="btn btn-sm {% if current_filter == 'APPROVED' %}btn-primary{% else %}btn-outline{% endif %}">✅ Approved (Ready)</a>
+    <a href="{{ url_for('student_my_requests', status='COMPLETED') }}" class="btn btn-sm {% if current_filter == 'COMPLETED' %}btn-primary{% else %}btn-outline{% endif %}">✔ Exited / Completed</a>
+    <a href="{{ url_for('student_my_requests', status='REJECTED') }}" class="btn btn-sm {% if current_filter == 'REJECTED' %}btn-primary{% else %}btn-outline{% endif %}">❌ Rejected</a>
+</div>
+
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+    <div class="card-body" style="padding:0;">
+        {% if requests %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pass Code / ID</th>
+                        <th>Departure Date</th>
+                        <th>Permitted Exit</th>
+                        <th>Reason</th>
+                        <th>Destination</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in requests %}
+                    <tr>
+                        <td>
+                            <strong>{{ r['pass_code'] or ('#' ~ r['id']) }}</strong>
+                        </td>
+                        <td>{{ r['request_date'] }}</td>
+                        <td style="color:#2563eb;font-weight:700;">{{ r['exit_time'] }}</td>
+                        <td>{{ r['reason'][:32] }}{% if r['reason']|length > 32 %}…{% endif %}</td>
+                        <td>{{ r['destination'] }}</td>
+                        <td>
+                            {% if r['request_type'] == 'Urgent' or r['request_type'] == 'Emergency' %}
+                            <span class="badge badge-emergency">🔴 Urgent</span>
+                            {% else %}
+                            <span class="badge badge-normal">🟢 Normal</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set s = r['status'] %}
+                            {% if s == 'PENDING_TUTOR' %}
+                            <span class="badge badge-pending">⏳ Tutor Review</span>
+                            {% elif s == 'PENDING_HOD' %}
+                            <span class="badge badge-pending" style="background:#e0e7ff;color:#3730a3;">⏳ HOD Review</span>
+                            {% elif s == 'APPROVED' %}
+                            <span class="badge badge-approved">✅ Approved</span>
+                            {% elif s == 'OUTSIDE' or s == 'COMPLETED' %}
+                            <span class="badge badge-completed">✔ Exited (Completed)</span>
+                            {% elif 'REJECTED' in s %}
+                            <span class="badge badge-rejected">❌ Rejected</span>
+                            {% elif s == 'CANCELLED' %}
+                            <span class="badge badge-normal">Cancelled</span>
+                            {% else %}
+                            <span class="badge badge-normal">{{ s }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display:flex;gap:6px;">
+                                {% if r['status'] in ('APPROVED', 'OUTSIDE', 'COMPLETED') %}
+                                <a href="{{ url_for('student_pass', req_id=r['id']) }}" class="btn btn-primary btn-sm">🪪 QR Pass</a>
+                                {% endif %}
+                                <a href="{{ url_for('student_request_detail', req_id=r['id']) }}" class="btn btn-outline btn-sm">Track</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:48px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:10px;">📋</div>
+            <h3 style="color:#0f172a;font-weight:800;margin-bottom:6px;">No Applications Found</h3>
+            <p style="color:#64748b;font-size:0.88rem;margin:0 0 16px;">There are no gate passes matching the selected filter.</p>
+            <a href="{{ url_for('student_new_request') }}" class="btn btn-primary">Apply Now</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

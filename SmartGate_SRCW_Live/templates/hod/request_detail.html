@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block title %}HOD Authorization – Request #{{ req['id'] }}{% endblock %}
+{% block page_title %}HOD Authorization Dossier{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Department HOD Portal</div>
+<a href="{{ url_for('hod_dashboard') }}"><span class="nav-icon">🏛️</span> HOD Dashboard</a>
+<a href="{{ url_for('hod_all_requests') }}" class="active"><span class="nav-icon">📋</span> Department Passes</a>
+<a href="{{ url_for('hod_reports') }}"><span class="nav-icon">📊</span> Department Reports</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+        <a href="{{ url_for('hod_dashboard') }}" class="btn btn-outline btn-sm">← Back to Dashboard</a>
+        <div>
+            <h1 style="font-size:1.4rem;font-weight:800;color:#0f172a;margin:0;">Final Authorization: Gate Pass #{{ req['id'] }}</h1>
+            <p style="color:#64748b;font-size:0.85rem;margin:2px 0 0;">
+                Student: <strong>{{ req['student_name'] }}</strong> ({{ req['register_number'] }}) · {{ req['class_name'] }}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:20px;">
+        <!-- Pass Details -->
+        <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+            <div class="card-header" style="padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+                <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">📋 Gate Pass Application Dossier</h3>
+                <span class="badge badge-pending">
+                    {{ req['status'].replace('_', ' ') }}
+                </span>
+            </div>
+            <div class="card-body" style="padding:20px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:0.88rem;">
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Reason for Leaving</span>
+                        <p style="font-size:1rem;font-weight:700;color:#1e3a8a;margin:2px 0 0;">{{ req['reason'] }}</p>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Destination</span>
+                        <p style="font-size:1rem;font-weight:700;color:#0f172a;margin:2px 0 0;">{{ req['destination'] }}</p>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Departure Date</span>
+                        <strong>{{ req['request_date'] }}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Permitted Exit Time</span>
+                        <strong style="color:#2563eb;">⏰ {{ req['exit_time'] }}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Request Priority</span>
+                        <p style="margin:2px 0 0;">
+                            {% if req['request_type'] == 'Urgent' or req['request_type'] == 'Emergency' %}
+                            <span class="badge badge-emergency">🔴 Urgent Departure</span>
+                            {% else %}
+                            <span class="badge badge-normal">🟢 Normal Departure</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Exit Policy</span>
+                        <span style="color:#64748b;font-size:0.8rem;">Single Exit · College concludes at 2:00 PM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student & Guardian Details -->
+        <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+            <div class="card-header" style="padding:16px 20px;border-bottom:1px solid #f1f5f9;">
+                <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">👤 Student Identification</h3>
+            </div>
+            <div class="card-body" style="padding:20px;">
+                <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+                    <div style="width:54px;height:54px;border-radius:12px;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;overflow:hidden;">
+                        {% if req['photo'] %}
+                        <img src="{{ url_for('static', filename='uploads/' ~ req['photo']) }}" alt="Photo" style="width:100%;height:100%;object-fit:cover;">
+                        {% else %}
+                        {{ req['student_name'][0] }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 style="margin:0;font-size:1.05rem;font-weight:800;color:#0f172a;">{{ req['student_name'] }}</h4>
+                        <div style="font-family:monospace;font-weight:700;color:#64748b;font-size:0.85rem;">{{ req['register_number'] }}</div>
+                        <div style="font-size:0.8rem;color:#2563eb;">{{ req['class_name'] }} · {{ req['dept_name'] }}</div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.86rem;background:#f8fafc;padding:12px 16px;border-radius:10px;">
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;display:block;">Student Mobile</span>
+                        <strong>{{ req['student_phone'] or 'Not provided' }}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;display:block;">Parent Contact</span>
+                        <strong style="color:#dc2626;">📞 {{ req['parent_phone'] or 'Not provided' }}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;display:block;">Category</span>
+                        <strong>{{ req['student_type'] }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Class Tutor Recommendation Card -->
+        {% set tut_app = approvals|selectattr('role','eq','tutor')|list %}
+        <div class="card" style="background:#ffffff;border:1.5px solid #2563eb;border-radius:16px;overflow:hidden;">
+            <div class="card-header" style="background:#eff6ff;padding:14px 20px;">
+                <h3 style="color:#1e40af;font-size:0.98rem;margin:0;">👩‍🏫 Class Tutor Recommendation</h3>
+            </div>
+            <div class="card-body" style="padding:18px 20px;">
+                {% if tut_app %}
+                {% set ta = tut_app[-1] %}
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <strong style="color:#0f172a;">Reviewed by Tutor:</strong>
+                        <span style="color:#10b981;font-weight:800;">{{ ta['decision'] }}</span>
+                        <div style="font-size:0.78rem;color:#64748b;margin-top:2px;">
+                            {{ ta['approver_username'] }} · {{ ta['approved_at'][:16] if ta['approved_at'] else '' }}
+                        </div>
+                    </div>
+                    <span class="badge badge-approved">RECOMMENDED</span>
+                </div>
+                {% if ta['remarks'] %}
+                <div style="margin-top:10px;padding:10px 14px;background:#f8fafc;border-left:3px solid #2563eb;border-radius:6px;font-size:0.84rem;color:#334155;">
+                    "{{ ta['remarks'] }}"
+                </div>
+                {% endif %}
+                {% else %}
+                <p style="color:#64748b;font-size:0.86rem;margin:0;">No tutor record attached.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Approval Action Card -->
+    <div>
+        <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+            <h3 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin-bottom:6px;">HOD Decision</h3>
+            <p style="color:#64748b;font-size:0.82rem;margin-bottom:18px;">
+                Approving activates the secure alphanumeric QR pass code and enables main gate departure.
+            </p>
+
+            {% if req['status'] == 'PENDING_HOD' %}
+            <form method="POST" action="{{ url_for('hod_request_detail', req_id=req['id']) }}">
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label" style="font-size:0.82rem;font-weight:700;color:#1e293b;display:block;margin-bottom:6px;">
+                        HOD Official Remarks
+                    </label>
+                    <textarea name="remarks" class="form-control" rows="3" placeholder="e.g. Approved. Departure permitted."></textarea>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <button type="submit" name="action" value="approve" class="btn btn-primary" style="padding:13px;font-weight:800;background:#10b981;border-color:#10b981;">
+                        ✓ Authorize &amp; Issue QR Pass
+                    </button>
+                    <button type="submit" name="action" value="reject" class="btn btn-outline" style="padding:12px;font-weight:800;color:#ef4444;border-color:#fca5a5;" onclick="return confirm('Reject this gate pass application?');">
+                        ✕ Reject Pass
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div style="background:#f8fafc;padding:16px;border-radius:10px;text-align:center;">
+                <div style="font-size:1.5rem;margin-bottom:6px;">✓</div>
+                <strong style="color:#0f172a;font-size:0.9rem;display:block;">Pass Authorized</strong>
+                <span style="font-size:0.8rem;color:#64748b;">Pass Code: {{ req['pass_code'] }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

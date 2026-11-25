@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}System Administration &amp; Governance{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Administrator Console</div>
+<a href="{{ url_for('admin_dashboard') }}" class="active"><span class="nav-icon">📊</span> Overview Dashboard</a>
+<a href="{{ url_for('admin_users') }}"><span class="nav-icon">👥</span> User Management</a>
+<a href="{{ url_for('admin_user_new') }}"><span class="nav-icon">➕</span> Add Staff User</a>
+<a href="{{ url_for('admin_departments') }}"><span class="nav-icon">🏫</span> Departments (5)</a>
+<a href="{{ url_for('admin_courses') }}"><span class="nav-icon">🎓</span> Courses (13)</a>
+<a href="{{ url_for('admin_classes') }}"><span class="nav-icon">📚</span> Annual Classes</a>
+<a href="{{ url_for('admin_tutor_assignment') }}"><span class="nav-icon">👩‍🏫</span> Tutor Assignment</a>
+<a href="{{ url_for('admin_hod_assignment') }}"><span class="nav-icon">🏛️</span> HOD Assignment</a>
+<a href="{{ url_for('admin_reports') }}"><span class="nav-icon">📑</span> Master Reports</a>
+<a href="{{ url_for('admin_audit_logs') }}"><span class="nav-icon">📜</span> Institutional Audit</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">Institutional Control Center ⚡</h1>
+        <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">
+            Sri Ramakrishna College of Arts &amp; Science for Women (SNR Sons Trust) · Gate Pass Operations
+        </p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="{{ url_for('admin_user_new') }}" class="btn btn-primary btn-sm" style="font-weight:700;">➕ Add Staff User</a>
+        <a href="{{ url_for('admin_reports') }}" class="btn btn-outline btn-sm">📑 Pass Reports</a>
+        <a href="{{ url_for('admin_audit_logs') }}" class="btn btn-outline btn-sm">📜 Audit Trail</a>
+    </div>
+</div>
+
+<!-- 5 Institutional Roles & System Stats -->
+<div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:16px;margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon blue">🎓</div>
+        <div>
+            <div class="stat-number">{{ counts['total_students'] }}</div>
+            <div class="stat-label">Students</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">👩‍🏫</div>
+        <div>
+            <div class="stat-number">{{ counts['total_tutors'] }}</div>
+            <div class="stat-label">Class Tutors</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">🏛️</div>
+        <div>
+            <div class="stat-number">{{ counts['total_hods'] }}</div>
+            <div class="stat-label">Department HODs</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon teal">🛡️</div>
+        <div>
+            <div class="stat-number">{{ counts['total_guards'] }}</div>
+            <div class="stat-label">Gate Guards</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">🏫</div>
+        <div>
+            <div class="stat-number">{{ counts['total_departments'] }}</div>
+            <div class="stat-label">Departments (Exact 5)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">🎓</div>
+        <div>
+            <div class="stat-number">{{ counts['total_courses'] }}</div>
+            <div class="stat-label">Courses (Exact 13)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">📚</div>
+        <div>
+            <div class="stat-number">{{ counts['total_classes'] }}</div>
+            <div class="stat-label">Annual Classes</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">🚪</div>
+        <div>
+            <div class="stat-number">{{ counts['exits_today'] }}</div>
+            <div class="stat-label">Exits Verified Today</div>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:24px;align-items:start;">
+    <!-- Recent Gate Passes -->
+    <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+        <div class="card-header" style="padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">📋 Recent Campus Passes</h3>
+            <a href="{{ url_for('admin_reports') }}" class="btn btn-outline btn-sm">All Records →</a>
+        </div>
+        <div class="card-body" style="padding:0;">
+            {% if recent_passes %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pass Code / ID</th>
+                            <th>Student</th>
+                            <th>Dept</th>
+                            <th>Date</th>
+                            <th>Exit Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in recent_passes %}
+                        <tr>
+                            <td style="font-family:monospace;font-weight:700;color:#1e3a8a;">
+                                {{ r['pass_code'] or ('#' ~ r['id']) }}
+                            </td>
+                            <td>
+                                <strong>{{ r['student_name'] }}</strong>
+                                <div style="font-size:0.75rem;color:#64748b;font-family:monospace;">{{ r['register_number'] }}</div>
+                            </td>
+                            <td>{{ r['dept_code'] }}</td>
+                            <td>{{ r['request_date'] }}</td>
+                            <td>{{ r['exit_time'] }}</td>
+                            <td>
+                                {% set s = r['status'] %}
+                                {% if s == 'APPROVED' %}
+                                <span class="badge badge-approved">Approved</span>
+                                {% elif s in ('OUTSIDE', 'COMPLETED') %}
+                                <span class="badge badge-completed">Completed</span>
+                                {% elif 'PENDING' in s %}
+                                <span class="badge badge-pending">Review</span>
+                                {% elif 'REJECTED' in s %}
+                                <span class="badge badge-rejected">Rejected</span>
+                                {% else %}
+                                <span class="badge badge-normal">{{ s }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="padding:30px;text-align:center;color:#64748b;margin:0;">No gate pass records created yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Live System Audit Trail -->
+    <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+        <div class="card-header" style="padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">📜 Real-Time Audit Log</h3>
+            <a href="{{ url_for('admin_audit_logs') }}" class="btn btn-outline btn-sm">Audit Log →</a>
+        </div>
+        <div class="card-body" style="padding:0;">
+            {% if recent_audits %}
+            <div style="display:flex;flex-direction:column;">
+                {% for a in recent_audits %}
+                <div style="padding:12px 18px;border-bottom:1px solid #f8fafc;font-size:0.84rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-weight:700;color:#1e293b;">
+                            {{ a['action'].replace('_', ' ') }}
+                        </span>
+                        <span style="font-size:0.72rem;color:#94a3b8;">{{ a['created_at'][11:19] if a['created_at'] else '' }}</span>
+                    </div>
+                    <div style="font-size:0.76rem;color:#64748b;margin-top:2px;">
+                        By <strong>{{ a['username'] or 'System' }}</strong> ({{ a['role'] or 'system' }})
+                    </div>
+                    {% if a['details'] %}
+                    <div style="font-size:0.78rem;color:#475569;margin-top:2px;">{{ a['details'] }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="padding:30px;text-align:center;color:#64748b;margin:0;">No audit events recorded.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

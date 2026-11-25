@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Edit User: {{ user['username'] }} – Admin{% endblock %}
+{% block page_title %}Edit User Profile{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Administrator Console</div>
+<a href="{{ url_for('admin_dashboard') }}"><span class="nav-icon">📊</span> Overview Dashboard</a>
+<a href="{{ url_for('admin_users') }}" class="active"><span class="nav-icon">👥</span> User Management</a>
+<a href="{{ url_for('admin_user_new') }}"><span class="nav-icon">➕</span> Add Staff User</a>
+<a href="{{ url_for('admin_departments') }}"><span class="nav-icon">🏫</span> Departments (5)</a>
+<a href="{{ url_for('admin_courses') }}"><span class="nav-icon">🎓</span> Courses (13)</a>
+<a href="{{ url_for('admin_classes') }}"><span class="nav-icon">📚</span> Annual Classes</a>
+<a href="{{ url_for('admin_tutor_assignment') }}"><span class="nav-icon">👩‍🏫</span> Tutor Assignment</a>
+<a href="{{ url_for('admin_hod_assignment') }}"><span class="nav-icon">🏛️</span> HOD Assignment</a>
+<a href="{{ url_for('admin_reports') }}"><span class="nav-icon">📑</span> Master Reports</a>
+<a href="{{ url_for('admin_audit_logs') }}"><span class="nav-icon">📜</span> Institutional Audit</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">Edit Account: {{ user['username'] }}</h1>
+        <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">Role: <strong style="text-transform:uppercase;">{{ user['role'] }}</strong> · Created: {{ user['created_at'][:10] if user['created_at'] else '—' }}</p>
+    </div>
+    <a href="{{ url_for('admin_users') }}" class="btn btn-outline btn-sm">← Back to Users</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:24px;max-width:1000px;margin:0 auto;align-items:start;">
+    <!-- Main Edit Form -->
+    <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+        <form method="POST" action="{{ url_for('admin_user_edit', user_id=user['id']) }}">
+            <h3 style="color:#0f172a;font-size:1.1rem;font-weight:800;margin-bottom:16px;border-bottom:1px solid #f1f5f9;padding-bottom:10px;">
+                👤 Account Particulars
+            </h3>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="name" class="form-control" value="{{ profile['name'] if profile else user['username'] }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Registered Email</label>
+                    <input type="email" name="email" class="form-control" value="{{ user['email'] or '' }}" required>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                <div class="form-group">
+                    <label class="form-label">Contact Mobile</label>
+                    <input type="tel" name="phone" class="form-control" value="{{ profile['phone'] if profile else '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Account Status</label>
+                    <select name="status" class="form-control">
+                        <option value="ACTIVE" {% if user['status'] == 'ACTIVE' %}selected{% endif %}>ACTIVE</option>
+                        <option value="INACTIVE" {% if user['status'] == 'INACTIVE' %}selected{% endif %}>INACTIVE</option>
+                    </select>
+                </div>
+            </div>
+
+            {% if user['role'] in ('student', 'tutor', 'hod') %}
+            <div class="form-group" style="margin-bottom:16px;">
+                <label class="form-label">Department</label>
+                <select name="department_id" class="form-control">
+                    <option value="">-- No Department --</option>
+                    {% for d in departments %}
+                    <option value="{{ d['id'] }}" {% if profile and profile['department_id'] == d['id'] %}selected{% endif %}>
+                        {{ d['name'] }} ({{ d['code'] }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            {% if user['role'] == 'student' %}
+            <div class="form-group" style="margin-bottom:16px;">
+                <label class="form-label">Parent / Guardian Phone</label>
+                <input type="tel" name="parent_phone" class="form-control" value="{{ profile['parent_phone'] if profile else '' }}">
+            </div>
+            {% endif %}
+
+            {% if user['role'] == 'tutor' %}
+            <div class="form-group" style="margin-bottom:16px;">
+                <label class="form-label">Designation</label>
+                <input type="text" name="designation" class="form-control" value="{{ profile['designation'] if profile else '' }}">
+            </div>
+            {% endif %}
+
+            {% if user['role'] == 'guard' %}
+            <div class="form-group" style="margin-bottom:16px;">
+                <label class="form-label">Duty Shift</label>
+                <select name="shift" class="form-control">
+                    <option value="General" {% if profile and profile['shift'] == 'General' %}selected{% endif %}>General Shift</option>
+                    <option value="Morning" {% if profile and profile['shift'] == 'Morning' %}selected{% endif %}>Morning Shift</option>
+                    <option value="Evening" {% if profile and profile['shift'] == 'Evening' %}selected{% endif %}>Evening Shift</option>
+                </select>
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary" style="width:100%;padding:14px;font-size:0.95rem;font-weight:800;border-radius:10px;margin-top:10px;">
+                ✓ Save Account Updates
+            </button>
+        </form>
+    </div>
+
+    <!-- Direct Password Reset Card -->
+    <div>
+        <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+            <h3 style="color:#0f172a;font-size:1.1rem;font-weight:800;margin-bottom:8px;">🔑 Direct Password Reset</h3>
+            <p style="color:#64748b;font-size:0.82rem;margin-bottom:16px;">
+                Directly reset this user's password without needing an external mail server.
+            </p>
+            <form method="POST" action="{{ url_for('admin_user_reset_password', user_id=user['id']) }}">
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label" style="font-size:0.82rem;font-weight:700;">New Temporary Password</label>
+                    <input type="text" name="new_password" class="form-control" placeholder="Minimum 4 characters" value="staff123" required>
+                </div>
+                <button type="submit" class="btn btn-outline" style="width:100%;padding:11px;font-weight:800;color:#d97706;border-color:#fcd34d;">
+                    Reset Password Directly
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

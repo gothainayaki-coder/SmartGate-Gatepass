@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard{% endblock %}
+{% block page_title %}Student Portal Dashboard{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Student Portal</div>
+<a href="{{ url_for('student_dashboard') }}" class="active"><span class="nav-icon">🏠</span> Dashboard</a>
+<a href="{{ url_for('student_new_request') }}"><span class="nav-icon">➕</span> Apply Gate Pass</a>
+<a href="{{ url_for('student_my_requests') }}"><span class="nav-icon">📋</span> My Gate Passes</a>
+<a href="{{ url_for('student_history') }}"><span class="nav-icon">📜</span> Exit History</a>
+<a href="{{ url_for('student_profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;">
+    <div style="display:flex;align-items:center;gap:16px;">
+        <div class="student-photo-large">
+            {% if student['photo'] %}
+            <img src="{{ url_for('static', filename='uploads/' ~ student['photo']) }}" alt="Photo">
+            {% else %}
+            {{ student['name'][0] }}
+            {% endif %}
+        </div>
+        <div>
+            <h1 style="font-size:1.4rem;margin-bottom:4px;color:#0f172a;">Welcome, {{ student['name'] }}! 👋</h1>
+            <p style="color:#64748b;font-size:0.86rem;margin:0;">
+                {{ student['register_number'] }} · {{ student['dept_name'] }} · {{ student['class_name'] or student['course_name'] }} ({{ student['student_type'] }})
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Active Pass Notification Banner (if any) -->
+{% if active_pass %}
+<div style="background:linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);color:#ffffff;border-radius:14px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;box-shadow:0 10px 25px rgba(37,99,235,0.25);">
+    <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:6px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;">
+                ACTIVE PASS READY
+            </span>
+            <span style="font-size:0.9rem;font-weight:700;">Pass Code: {{ active_pass['pass_code'] }}</span>
+        </div>
+        <p style="margin:0;font-size:0.88rem;color:#e0e7ff;">
+            Permitted Departure: <strong>{{ active_pass['request_date'] }} at {{ active_pass['exit_time'] }}</strong> to <strong>{{ active_pass['destination'] }}</strong>
+        </p>
+    </div>
+    <a href="{{ url_for('student_pass', req_id=active_pass['id']) }}" class="btn" style="background:#ffffff;color:#1e3a8a;font-weight:800;padding:10px 20px;border-radius:8px;text-decoration:none;">
+        🪪 View QR Gate Pass →
+    </a>
+</div>
+{% endif %}
+
+<!-- Stats Cards -->
+<div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:16px;margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon blue">📋</div>
+        <div>
+            <div class="stat-number">{{ total }}</div>
+            <div class="stat-label">Total Applied</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">⏳</div>
+        <div>
+            <div class="stat-number">{{ pending }}</div>
+            <div class="stat-label">Under Review</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div>
+            <div class="stat-number">{{ approved }}</div>
+            <div class="stat-label">Approved</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon teal">🚪</div>
+        <div>
+            <div class="stat-number">{{ completed }}</div>
+            <div class="stat-label">Completed Exits</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red">❌</div>
+        <div>
+            <div class="stat-number">{{ rejected }}</div>
+            <div class="stat-label">Rejected</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Action Button -->
+<div style="margin-bottom:24px;">
+    <a href="{{ url_for('student_new_request') }}" class="btn btn-primary" style="font-size:0.95rem;padding:12px 24px;font-weight:700;">
+        ➕ Apply for New Gate Pass
+    </a>
+</div>
+
+<!-- Recent Requests -->
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+    <div class="card-header" style="padding:18px 24px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+        <h3 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin:0;">📋 Recent Gate Pass Applications</h3>
+        <a href="{{ url_for('student_my_requests') }}" class="btn btn-outline btn-sm">View All Applications</a>
+    </div>
+    <div class="card-body" style="padding:0;">
+        {% if recent_requests %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pass Code / ID</th>
+                        <th>Date</th>
+                        <th>Reason</th>
+                        <th>Destination</th>
+                        <th>Permitted Exit</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in recent_requests %}
+                    <tr>
+                        <td>
+                            <strong>{{ r['pass_code'] or ('#' ~ r['id']) }}</strong>
+                        </td>
+                        <td>{{ r['request_date'] }}</td>
+                        <td>{{ r['reason'][:35] }}{% if r['reason']|length > 35 %}…{% endif %}</td>
+                        <td>{{ r['destination'] }}</td>
+                        <td style="color:#2563eb;font-weight:600;">{{ r['exit_time'] }}</td>
+                        <td>
+                            {% set s = r['status'] %}
+                            {% if s == 'PENDING_TUTOR' %}
+                            <span class="badge badge-pending">⏳ Tutor Review</span>
+                            {% elif s == 'PENDING_HOD' %}
+                            <span class="badge badge-pending" style="background:#e0e7ff;color:#3730a3;">⏳ HOD Review</span>
+                            {% elif s == 'APPROVED' %}
+                            <span class="badge badge-approved">✅ Approved</span>
+                            {% elif s == 'OUTSIDE' or s == 'COMPLETED' %}
+                            <span class="badge badge-completed">✔ Exited (Completed)</span>
+                            {% elif 'REJECTED' in s %}
+                            <span class="badge badge-rejected">❌ Rejected</span>
+                            {% else %}
+                            <span class="badge badge-normal">{{ s }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r['status'] in ('APPROVED', 'OUTSIDE', 'COMPLETED') %}
+                            <a href="{{ url_for('student_pass', req_id=r['id']) }}" class="btn btn-primary btn-sm">🪪 QR Pass</a>
+                            {% else %}
+                            <a href="{{ url_for('student_request_detail', req_id=r['id']) }}" class="btn btn-outline btn-sm">Details</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:40px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:10px;">📋</div>
+            <h3 style="color:#0f172a;font-weight:800;margin-bottom:6px;">No Gate Passes Yet</h3>
+            <p style="color:#64748b;font-size:0.88rem;margin:0 0 16px;">You haven't submitted any gate pass applications.</p>
+            <a href="{{ url_for('student_new_request') }}" class="btn btn-primary">Apply Now</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

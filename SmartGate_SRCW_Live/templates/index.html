@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartGate | Sri Ramakrishna College of Arts & Science for Women</title>
+    <meta name="description" content="Official Gate Pass Management System of Sri Ramakrishna College of Arts & Science for Women (SNR Sons Trust), Coimbatore.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+</head>
+<body>
+
+    <!-- Institutional Brand Strip -->
+    <header class="inst-header-strip">
+        <div class="inst-brand-combo">
+            <img src="{{ url_for('static', filename='images/srcw_logo.png') }}" 
+                 alt="Sri Ramakrishna College of Arts & Science for Women Logo" 
+                 class="brand-logo-main">
+            <div class="inst-title-block">
+                <span class="inst-title-main">Sri Ramakrishna College of Arts and Science for Women</span>
+                <span class="inst-subtitle">Autonomous Institution • Affiliated to Bharathiar University • Re-accredited by NAAC • Coimbatore - 641 044</span>
+            </div>
+        </div>
+        <div class="inst-brand-combo" style="margin-left: auto;">
+            <img src="{{ url_for('static', filename='images/snr_trust_logo.jpg') }}" 
+                 alt="SNR Sons Charitable Trust Logo" 
+                 class="brand-logo-trust">
+            <div class="inst-title-block" style="text-align: right;">
+                <span class="inst-trust-text">SNR Sons Charitable Trust</span>
+                <span class="inst-subtitle">Seva • Vidya • Samrakshana</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Strict 7-Item Navigation Bar -->
+    <nav class="navbar-custom" aria-label="Main Navigation">
+        <!-- Item 1 & 2: College Logo & SmartGate Branding -->
+        <div class="nav-brand-group">
+            <a href="{{ url_for('index') }}" title="Sri Ramakrishna College of Arts and Science for Women">
+                <img src="{{ url_for('static', filename='images/srcw_logo.png') }}" 
+                     alt="College Logo" 
+                     class="nav-college-logo">
+            </a>
+            <a href="{{ url_for('index') }}" class="nav-smartgate-title">
+                <span class="shield"><i class="fas fa-shield-alt"></i></span> SmartGate
+            </a>
+        </div>
+
+        <button class="nav-mobile-toggle" id="mobileNavToggle" aria-label="Toggle navigation menu">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Items 3 to 7: Strict Navigation Menu -->
+        <ul class="nav-menu" id="navMenu">
+            <!-- Item 3: Home -->
+            <li class="nav-item">
+                <a href="{{ url_for('index') }}" class="nav-link active">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </li>
+            <!-- Item 4: Student Registration -->
+            <li class="nav-item">
+                <a href="{{ url_for('register_student') }}" class="nav-link">
+                    <i class="fas fa-user-graduate"></i> Student Registration
+                </a>
+            </li>
+            <!-- Item 5: Faculty Registration -->
+            <li class="nav-item">
+                <a href="{{ url_for('register_faculty') }}" class="nav-link">
+                    <i class="fas fa-chalkboard-teacher"></i> Faculty Registration
+                </a>
+            </li>
+            <!-- Item 6: HOD Registration -->
+            <li class="nav-item">
+                <a href="{{ url_for('register_hod') }}" class="nav-link">
+                    <i class="fas fa-user-tie"></i> HOD Registration
+                </a>
+            </li>
+            <!-- Item 7: Login -->
+            <li class="nav-item">
+                <a href="{{ url_for('login') }}" class="nav-link nav-link-login">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Flash Messages (if any) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div style="max-width: 1200px; margin: 20px auto 0; padding: 0 24px;">
+                {% for category, message in messages %}
+                    <div style="padding: 14px 20px; border-radius: 8px; margin-bottom: 12px; font-weight: 600; 
+                        {% if category == 'success' %}
+                            background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9;
+                        {% elif category == 'danger' or category == 'error' %}
+                            background: #ffebee; color: #b71c1c; border: 1px solid #ffcdd2;
+                        {% elif category == 'warning' %}
+                            background: #fff8e1; color: #f57f17; border: 1px solid #ffe082;
+                        {% else %}
+                            background: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb;
+                        {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Hero Portal Section (Green & Gold) -->
+    <section class="hero-portal">
+        <div class="hero-inner">
+            <div class="hero-inst-badge">
+                <i class="fas fa-university"></i> Official Institutional Campus Security Portal
+            </div>
+            <h1 class="hero-main-title">SMARTGATE</h1>
+            <h2 class="hero-tagline">Smart Campus. Secure Movement. Simplified Gate Pass Management.</h2>
+            <p class="hero-description">
+                A secure digital gate pass management platform for Sri Ramakrishna College of Arts and Science for Women, connecting students, tutors, HODs and campus security through a centralized system.
+            </p>
+            <div class="hero-actions-row">
+                <a href="{{ url_for('register_student') }}" class="btn-primary-green">
+                    <i class="fas fa-user-plus"></i> Student Registration
+                </a>
+                <a href="{{ url_for('login') }}" class="btn-gold-outline">
+                    <i class="fas fa-sign-in-alt"></i> Access Portal Login
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Access Hub Cards -->
+    <section class="section-hub">
+        <div class="section-head">
+            <span class="section-badge-gold">Self-Service Onboarding</span>
+            <h2 class="section-heading-green">Registration Access Hub</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+                Select your institutional role to create your official SmartGate account.
+            </p>
+        </div>
+
+        <div class="reg-cards-grid">
+            <!-- Student Registration Card -->
+            <div class="reg-card-item featured">
+                <div>
+                    <div class="reg-icon-circle">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3 class="reg-card-title">Student Registration</h3>
+                    <p class="reg-card-desc">
+                        For enrolled undergraduate and postgraduate students. Register using your official Roll Number, Register Number, Department, and Year of Study for instant pass requests.
+                    </p>
+                    <div class="reg-card-meta">
+                        <i class="fas fa-bolt"></i> Instant Activation & Dashboard Access
+                    </div>
+                </div>
+                <a href="{{ url_for('register_student') }}" class="reg-card-btn btn-card-student">
+                    Register as Student <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- Faculty / Class Tutor Registration Card -->
+            <div class="reg-card-item">
+                <div>
+                    <div class="reg-icon-circle">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 class="reg-card-title">Faculty Registration</h3>
+                    <p class="reg-card-desc">
+                        For Department Faculty and Class Tutors. Manage classroom student pass applications, review parent contact verification, and recommend gate passes.
+                    </p>
+                    <div class="reg-card-meta">
+                        <i class="fas fa-chalkboard"></i> Faculty & Class Tutor Unified Role
+                    </div>
+                </div>
+                <a href="{{ url_for('register_faculty') }}" class="reg-card-btn btn-card-faculty">
+                    Register as Faculty <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- HOD Registration Card -->
+            <div class="reg-card-item">
+                <div>
+                    <div class="reg-icon-circle">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3 class="reg-card-title">HOD Registration</h3>
+                    <p class="reg-card-desc">
+                        For Department Heads. Grant final approval for department gate pass applications and supervise outgoing campus movements across your academic branch.
+                    </p>
+                    <div class="reg-card-meta" style="color: #b45309;">
+                        <i class="fas fa-shield-alt"></i> Requires Administrator Verification
+                    </div>
+                </div>
+                <a href="{{ url_for('register_hod') }}" class="reg-card-btn btn-card-hod">
+                    Register as HOD <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5 Institutional Roles Grid -->
+    <section class="section-roles-wrap">
+        <div class="roles-container">
+            <div class="section-head">
+                <span class="section-badge-gold">Complete Campus Architecture</span>
+                <h2 class="section-heading-green">Five Institutional Roles</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+                    SmartGate coordinates five synchronized campus roles to ensure student safety and transparent gate clearance.
+                </p>
+            </div>
+
+            <div class="roles-grid-five">
+                <!-- Role 1 -->
+                <div class="role-tile">
+                    <div class="role-tile-icon" style="color: #0b5738;">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3 class="role-tile-name">1. Student</h3>
+                    <p class="role-tile-desc">
+                        Submits gate pass requests with reason, destination, and parent contact details; downloads secure QR pass once fully approved.
+                    </p>
+                </div>
+
+                <!-- Role 2 -->
+                <div class="role-tile">
+                    <div class="role-tile-icon" style="color: #c49a2d;">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 class="role-tile-name">2. Faculty / Class Tutor</h3>
+                    <p class="role-tile-desc">
+                        Reviews pass requests for class students, confirms parent consent, validates attendance reason, and forwards recommendation to HOD.
+                    </p>
+                </div>
+
+                <!-- Role 3 -->
+                <div class="role-tile">
+                    <div class="role-tile-icon" style="color: #064028;">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3 class="role-tile-name">3. HOD</h3>
+                    <p class="role-tile-desc">
+                        Authorizes final clearance for department students; grants digital signature authorizing generation of encrypted QR gate passes.
+                    </p>
+                </div>
+
+                <!-- Role 4 -->
+                <div class="role-tile">
+                    <div class="role-tile-icon" style="color: #0d9488;">
+                        <i class="fas fa-id-badge"></i>
+                    </div>
+                    <h3 class="role-tile-name">4. Gate Guard</h3>
+                    <p class="role-tile-desc">
+                        Scans student QR passes at college security checkpoint, logs real-time OUT time and records RETURN check-ins back to campus.
+                    </p>
+                </div>
+
+                <!-- Role 5 -->
+                <div class="role-tile">
+                    <div class="role-tile-icon" style="color: #9e7a1e;">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 class="role-tile-name">5. Administrator</h3>
+                    <p class="role-tile-desc">
+                        Maintains institutional configuration, manages departments and users, verifies HOD registrations, and monitors campus-wide audit trails.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Academic Departments Overview -->
+    <section class="section-depts">
+        <div class="section-head">
+            <span class="section-badge-gold">Sri Ramakrishna College of Arts and Science for Women</span>
+            <h2 class="section-heading-green">Academic Departments</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+                Supporting students, faculty, and department heads across all 5 key academic disciplines.
+            </p>
+        </div>
+
+        <div class="depts-grid-five">
+            <div class="dept-tile">
+                <h4>Computer Science</h4>
+                <p>B.Sc Computer Science, BCA, B.Sc Information Technology & M.Sc CS programs.</p>
+            </div>
+            <div class="dept-tile">
+                <h4>Commerce</h4>
+                <p>B.Com General, B.Com Computer Applications, Professional Accounting & M.Com.</p>
+            </div>
+            <div class="dept-tile">
+                <h4>Management</h4>
+                <p>Bachelor of Business Administration (BBA) & BBA Computer Applications.</p>
+            </div>
+            <div class="dept-tile">
+                <h4>Science</h4>
+                <p>B.Sc Mathematics, B.Sc Microbiology, B.Sc Biochemistry & Clinical Science.</p>
+            </div>
+            <div class="dept-tile">
+                <h4>Arts & Humanities</h4>
+                <p>BA English Literature, MA English & Social Sciences.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Clean Institutional Footer (No About Link) -->
+    <footer class="inst-footer-clean">
+        <div class="footer-inner-clean">
+            <div>
+                <div class="footer-brand-title">
+                    <i class="fas fa-shield-alt" style="color: var(--accent-gold-light);"></i> SMARTGATE PORTAL
+                </div>
+                <div class="footer-brand-meta">
+                    Sri Ramakrishna College of Arts and Science for Women • Coimbatore - 641 044
+                </div>
+                <div class="footer-brand-meta" style="color: var(--accent-gold-light); margin-top: 2px;">
+                    Under the Aegis of SNR Sons Charitable Trust
+                </div>
+            </div>
+            <div class="footer-nav-pills">
+                <a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a>
+                <a href="{{ url_for('register_student') }}"><i class="fas fa-user-graduate"></i> Student Registration</a>
+                <a href="{{ url_for('register_faculty') }}"><i class="fas fa-chalkboard-teacher"></i> Faculty Registration</a>
+                <a href="{{ url_for('register_hod') }}"><i class="fas fa-user-tie"></i> HOD Registration</a>
+                <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Portal Login</a>
+            </div>
+        </div>
+        <div class="footer-copy-text">
+            &copy; 2026 Sri Ramakrishna College of Arts and Science for Women. All Rights Reserved. SmartGate Academic Project.
+        </div>
+    </footer>
+
+    <!-- Mobile Navigation Toggle Script -->
+    <script>
+        document.getElementById('mobileNavToggle')?.addEventListener('click', function() {
+            var menu = document.getElementById('navMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration | SmartGate – Sri Ramakrishna College of Arts & Science for Women</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #0b5738;
+            --primary-green-dark: #064028;
+            --accent-gold: #c49a2d;
+            --accent-gold-light: #e0b441;
+            --gold-subtle: #fcf8ec;
+            --cream-bg: #fcfbf7;
+            --text-dark: #0f291e;
+            --text-muted: #52665b;
+            --border-light: #e2e8e3;
+        }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #064028 0%, #0b5738 50%, #064028 100%);
+            padding: 30px 16px;
+        }
+        .reg-card {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 740px;
+            width: 100%;
+            padding: 36px 32px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+            border-top: 5px solid var(--accent-gold);
+        }
+        .brand-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .brand-logos {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        .logo-srcw {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+        }
+        .logo-snr {
+            height: 42px;
+            width: auto;
+            object-fit: contain;
+        }
+        .college-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--primary-green);
+            line-height: 1.25;
+        }
+        .trust-subtitle {
+            font-size: 0.74rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-top: 2px;
+        }
+        .app-badge {
+            display: inline-block;
+            margin-top: 10px;
+            background: var(--gold-subtle);
+            color: var(--primary-green);
+            border: 1px solid var(--accent-gold);
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 5px 16px;
+            border-radius: 20px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid var(--border-light);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            color: var(--text-dark);
+            transition: all 0.2s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(11, 87, 56, 0.15);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-green);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+            box-shadow: 0 4px 14px rgba(11, 87, 56, 0.3);
+        }
+        .btn-submit:hover {
+            background: var(--primary-green-dark);
+            transform: translateY(-1px);
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 18px;
+        }
+        .alert-danger, .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .alert-success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .card-footer-links {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.86rem;
+            color: var(--text-muted);
+        }
+        .card-footer-links a {
+            color: var(--primary-green);
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .card-footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="reg-card">
+        <div class="brand-header">
+            <div class="brand-logos">
+                <img src="{{ url_for('static', filename='images/srcw_logo.png') }}" alt="SRCW Logo" class="logo-srcw">
+                <img src="{{ url_for('static', filename='images/snr_trust_logo.jpg') }}" alt="SNR Sons Trust" class="logo-snr">
+            </div>
+            <h1 class="college-title">Sri Ramakrishna College of Arts &amp; Science for Women</h1>
+            <p class="trust-subtitle">Autonomous • Affiliated to Bharathiar University • Coimbatore</p>
+            <div class="app-badge"><i class="fas fa-user-graduate"></i> Student Self-Registration</div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for cat, msg in messages %}
+            <div class="alert alert-{{ cat }}">{{ msg }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('register') }}" enctype="multipart/form-data">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Full Name <span style="color:#ef4444;">*</span></label>
+                    <input type="text" name="name" class="form-control" placeholder="e.g. Priya S." required autofocus>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Register Number <span style="color:#ef4444;">*</span></label>
+                    <input type="text" name="register_number" class="form-control" placeholder="e.g. 23BCA015" required>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">College Email Address <span style="color:#ef4444;">*</span></label>
+                    <input type="email" name="email" class="form-control" placeholder="e.g. priya@student.srcw.ac.in" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Desired Username <span style="color:#ef4444;">*</span></label>
+                    <input type="text" name="username" class="form-control" placeholder="e.g. priya23" required>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Account Password <span style="color:#ef4444;">*</span></label>
+                    <input type="password" name="password" class="form-control" placeholder="Minimum 6 characters" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password <span style="color:#ef4444;">*</span></label>
+                    <input type="password" name="confirm_password" class="form-control" placeholder="Re-enter password" required>
+                </div>
+            </div>
+
+            <!-- ACADEMIC ASSIGNMENT (DEPARTMENT -> DYNAMIC COURSE -> YEAR) -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Department <span style="color:#ef4444;">*</span></label>
+                    <select name="department_id" id="departmentSelect" class="form-control" required>
+                        <option value="" disabled selected>-- Select Department --</option>
+                        {% for d in departments %}
+                        <option value="{{ d['id'] }}">{{ d['name'] }} ({{ d['code'] }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Course / Degree <span style="color:#ef4444;">*</span></label>
+                    <select name="course_id" id="courseSelect" class="form-control" required disabled>
+                        <option value="" disabled selected>-- Select Department First --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Year of Study <span style="color:#ef4444;">*</span></label>
+                    <select name="year" id="yearSelect" class="form-control" required>
+                        <option value="1">I Year</option>
+                        <option value="2">II Year</option>
+                        <option value="3" selected>III Year</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Student Category <span style="color:#ef4444;">*</span></label>
+                    <select name="student_type" class="form-control" required>
+                        <option value="Day Scholar" selected>Day Scholar</option>
+                        <option value="Hosteller">Hosteller</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Student Mobile Number</label>
+                    <input type="tel" name="phone" class="form-control" placeholder="10-digit mobile number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Parent / Guardian Contact <span style="color:#ef4444;">*</span></label>
+                    <input type="tel" name="parent_phone" class="form-control" placeholder="Mandatory parent phone" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Student Photo (Optional)</label>
+                <input type="file" name="photo" class="form-control" accept="image/*">
+                <small style="color:var(--text-muted);font-size:0.75rem;">JPG/PNG passport-size photo for digital pass.</small>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-user-plus"></i> Create Student Account →
+            </button>
+        </form>
+
+        <div class="card-footer-links">
+            Already have a SmartGate account? <a href="{{ url_for('login') }}">Log in here</a> | <a href="{{ url_for('index') }}">Back to Home</a>
+        </div>
+    </div>
+
+    <!-- DYNAMIC COURSE FETCH SCRIPT -->
+    <script>
+        const deptSelect = document.getElementById('departmentSelect');
+        const courseSelect = document.getElementById('courseSelect');
+        const yearSelect = document.getElementById('yearSelect');
+
+        deptSelect.addEventListener('change', function() {
+            const deptId = this.value;
+            courseSelect.innerHTML = '<option value="" disabled selected>Loading courses...</option>';
+            courseSelect.disabled = true;
+
+            fetch(`/api/courses?department_id=${deptId}`)
+                .then(res => res.json())
+                .then(courses => {
+                    courseSelect.innerHTML = '<option value="" disabled selected>-- Select Course --</option>';
+                    if (courses.length > 0) {
+                        courses.forEach(c => {
+                            const opt = document.createElement('option');
+                            opt.value = c.id;
+                            opt.textContent = `${c.name} (${c.code}) - ${c.duration_years} Years`;
+                            opt.dataset.duration = c.duration_years;
+                            courseSelect.appendChild(opt);
+                        });
+                        courseSelect.disabled = false;
+                    } else {
+                        courseSelect.innerHTML = '<option value="" disabled>No active courses found</option>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching courses:', err);
+                    courseSelect.innerHTML = '<option value="" disabled>Error loading courses</option>';
+                });
+        });
+
+        courseSelect.addEventListener('change', function() {
+            const selectedOpt = this.options[this.selectedIndex];
+            const duration = parseInt(selectedOpt.dataset.duration || 3);
+
+            yearSelect.innerHTML = '';
+            const labels = {1: 'I Year', 2: 'II Year', 3: 'III Year', 4: 'IV Year'};
+            for (let y = 1; y <= duration; y++) {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = labels[y] || `Year ${y}`;
+                if (y === 1) opt.selected = true;
+                yearSelect.appendChild(opt);
+            }
+        });
+    </script>
+</body>
+</html>

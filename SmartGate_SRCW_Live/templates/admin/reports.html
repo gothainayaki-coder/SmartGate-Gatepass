@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Master Reports – Admin{% endblock %}
+{% block page_title %}Master Gate Pass Analytics &amp; Reports{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Administrator Console</div>
+<a href="{{ url_for('admin_dashboard') }}"><span class="nav-icon">📊</span> Overview Dashboard</a>
+<a href="{{ url_for('admin_users') }}"><span class="nav-icon">👥</span> User Management</a>
+<a href="{{ url_for('admin_user_new') }}"><span class="nav-icon">➕</span> Add Staff User</a>
+<a href="{{ url_for('admin_departments') }}"><span class="nav-icon">🏫</span> Departments (5)</a>
+<a href="{{ url_for('admin_courses') }}"><span class="nav-icon">🎓</span> Courses (13)</a>
+<a href="{{ url_for('admin_classes') }}"><span class="nav-icon">📚</span> Annual Classes</a>
+<a href="{{ url_for('admin_tutor_assignment') }}"><span class="nav-icon">👩‍🏫</span> Tutor Assignment</a>
+<a href="{{ url_for('admin_hod_assignment') }}"><span class="nav-icon">🏛️</span> HOD Assignment</a>
+<a href="{{ url_for('admin_reports') }}" class="active"><span class="nav-icon">📑</span> Master Reports</a>
+<a href="{{ url_for('admin_audit_logs') }}"><span class="nav-icon">📜</span> Institutional Audit</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">Master Gate Pass Analytics 📑</h1>
+        <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">
+            College-wide gate pass movement logs, department breakdowns, and compliance records
+        </p>
+    </div>
+    <div style="display:flex;gap:10px;">
+        <a href="{{ url_for('admin_reports', department_id=current_dept, status=current_status, start_date=start_date, end_date=end_date, export='csv') }}" class="btn btn-outline btn-sm">
+            📥 Download Master CSV
+        </a>
+        <button onclick="window.print()" class="btn btn-primary btn-sm">🖨️ Print Report</button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:18px 24px;margin-bottom:24px;">
+    <form method="GET" action="{{ url_for('admin_reports') }}" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) 120px;gap:14px;align-items:end;">
+        <div>
+            <label style="display:block;font-size:0.78rem;font-weight:700;color:#64748b;margin-bottom:4px;">Department</label>
+            <select name="department_id" class="form-control">
+                <option value="">All 5 Departments</option>
+                {% for d in departments %}
+                <option value="{{ d['id'] }}" {% if current_dept == (d['id']|string) %}selected{% endif %}>{{ d['name'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label style="display:block;font-size:0.78rem;font-weight:700;color:#64748b;margin-bottom:4px;">Status</label>
+            <select name="status" class="form-control">
+                <option value="ALL" {% if current_status == 'ALL' %}selected{% endif %}>All Statuses</option>
+                <option value="APPROVED" {% if current_status == 'APPROVED' %}selected{% endif %}>Approved (Ready)</option>
+                <option value="COMPLETED" {% if current_status == 'COMPLETED' %}selected{% endif %}>Completed (Exited)</option>
+                <option value="REJECTED" {% if current_status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+            </select>
+        </div>
+        <div>
+            <label style="display:block;font-size:0.78rem;font-weight:700;color:#64748b;margin-bottom:4px;">From Date</label>
+            <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+        </div>
+        <div>
+            <label style="display:block;font-size:0.78rem;font-weight:700;color:#64748b;margin-bottom:4px;">To Date</label>
+            <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary btn-sm" style="width:100%;padding:10px;font-weight:700;">Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Master Table -->
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+    <div class="card-header" style="padding:16px 24px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">Master Pass Records ({{ records|length }} Found)</h3>
+    </div>
+    <div class="card-body" style="padding:0;">
+        {% if records %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pass Code</th>
+                        <th>Student</th>
+                        <th>Department</th>
+                        <th>Class</th>
+                        <th>Date &amp; Exit</th>
+                        <th>Destination</th>
+                        <th>Status</th>
+                        <th>Main Gate Departure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in records %}
+                    <tr>
+                        <td style="font-family:monospace;font-weight:700;color:#1e3a8a;">
+                            {{ r['pass_code'] or ('#' ~ r['id']) }}
+                        </td>
+                        <td>
+                            <strong>{{ r['student_name'] }}</strong>
+                            <div style="font-size:0.75rem;color:#64748b;font-family:monospace;">{{ r['register_number'] }}</div>
+                        </td>
+                        <td>{{ r['dept_name'] }}</td>
+                        <td>{{ r['class_name'] }}</td>
+                        <td>{{ r['request_date'] }} {{ r['exit_time'] }}</td>
+                        <td>{{ r['destination'] }}</td>
+                        <td>
+                            {% set s = r['status'] %}
+                            {% if s == 'APPROVED' %}
+                            <span class="badge badge-approved">Approved</span>
+                            {% elif s in ('OUTSIDE', 'COMPLETED') %}
+                            <span class="badge badge-completed">Completed</span>
+                            {% elif 'PENDING' in s %}
+                            <span class="badge badge-pending">Review</span>
+                            {% elif 'REJECTED' in s %}
+                            <span class="badge badge-rejected">Rejected</span>
+                            {% else %}
+                            <span class="badge badge-normal">{{ s }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:0.82rem;color:#166534;font-weight:600;">
+                            {{ r['actual_exit_time'][:16] if r['actual_exit_time'] else 'Not Yet Exited' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:48px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:10px;">📑</div>
+            <h3 style="color:#0f172a;font-weight:800;margin-bottom:6px;">No Records Found</h3>
+            <p style="color:#64748b;font-size:0.88rem;margin:0;">No gate passes match your specified filter parameters.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Department HOD Dashboard{% endblock %}
+{% block page_title %}HOD Administration Portal{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Department HOD Portal</div>
+<a href="{{ url_for('hod_dashboard') }}" class="active"><span class="nav-icon">🏛️</span> HOD Dashboard</a>
+<a href="{{ url_for('hod_all_requests') }}"><span class="nav-icon">📋</span> Department Passes</a>
+<a href="{{ url_for('hod_reports') }}"><span class="nav-icon">📊</span> Department Reports</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">Head of Department Dashboard 🏛️</h1>
+        <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">
+            Welcome, <strong>{{ hod['name'] if hod else session['username'] }}</strong> · {{ hod['dept_name'] if hod else 'Department' }} (Final Authorization Officer)
+        </p>
+    </div>
+    <div style="display:flex;gap:10px;">
+        <a href="{{ url_for('hod_reports') }}" class="btn btn-outline btn-sm">📊 View Reports</a>
+        <a href="{{ url_for('hod_all_requests') }}" class="btn btn-primary btn-sm">Department Passes</a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon orange">⏳</div>
+        <div>
+            <div class="stat-number">{{ pending_count }}</div>
+            <div class="stat-label">Pending HOD Authorization</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div>
+            <div class="stat-number">{{ approved_count }}</div>
+            <div class="stat-label">Authorized Passes</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon teal">🚪</div>
+        <div>
+            <div class="stat-number">{{ completed_count }}</div>
+            <div class="stat-label">Exited / Completed</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">📋</div>
+        <div>
+            <div class="stat-number">{{ total_count }}</div>
+            <div class="stat-label">Total Department Requests</div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending HOD Approvals Table -->
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+    <div class="card-header" style="padding:18px 24px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <h3 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin:0;">⏳ Applications Recommended by Class Tutors</h3>
+            <span class="badge badge-pending">{{ pending_requests|length }} Pending</span>
+        </div>
+        <span style="font-size:0.8rem;color:#64748b;">Approving activates the secure alphanumeric QR pass for main gate exit.</span>
+    </div>
+    <div class="card-body" style="padding:0;">
+        {% if pending_requests %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Register No</th>
+                        <th>Class</th>
+                        <th>Departure Date</th>
+                        <th>Exit Time</th>
+                        <th>Reason</th>
+                        <th>Tutor Remarks</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in pending_requests %}
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div style="width:34px;height:34px;border-radius:8px;background:#2563eb;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:0.85rem;overflow:hidden;">
+                                    {% if r['photo'] %}
+                                    <img src="{{ url_for('static', filename='uploads/' ~ r['photo']) }}" alt="Photo" style="width:100%;height:100%;object-fit:cover;">
+                                    {% else %}
+                                    {{ r['student_name'][0] }}
+                                    {% endif %}
+                                </div>
+                                <strong style="color:#0f172a;font-size:0.9rem;">{{ r['student_name'] }}</strong>
+                            </div>
+                        </td>
+                        <td style="font-family:monospace;font-weight:700;">{{ r['register_number'] }}</td>
+                        <td>{{ r['class_name'] }}</td>
+                        <td>{{ r['request_date'] }}</td>
+                        <td style="color:#2563eb;font-weight:700;">{{ r['exit_time'] }}</td>
+                        <td>{{ r['reason'][:30] }}{% if r['reason']|length > 30 %}…{% endif %}</td>
+                        <td style="font-size:0.82rem;color:#475569;">
+                            {{ r['tutor_remarks'] or 'Recommended by Tutor' }}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('hod_request_detail', req_id=r['id']) }}" class="btn btn-primary btn-sm" style="font-weight:700;">
+                                Authorize &amp; Generate QR →
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:48px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:10px;">🎉</div>
+            <h3 style="color:#0f172a;font-weight:800;margin-bottom:6px;">No Pending Authorizations</h3>
+            <p style="color:#64748b;font-size:0.88rem;margin:0;">There are no applications currently awaiting final HOD approval in your department.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

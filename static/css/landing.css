@@ -1,0 +1,615 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   SMARTGATE – INSTITUTIONAL GREEN & GOLD DESIGN SYSTEM
+   Sri Ramakrishna College of Arts & Science for Women (SNR Sons Trust)
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    --primary-green: #0b5738;
+    --primary-green-dark: #064028;
+    --primary-green-light: #147a50;
+    --accent-gold: #c49a2d;
+    --accent-gold-light: #e0b441;
+    --accent-gold-dark: #9e7a1e;
+    --gold-subtle: #fcf8ec;
+    --cream-bg: #fcfbf7;
+    --card-bg: #ffffff;
+    --text-dark: #0f291e;
+    --text-muted: #52665b;
+    --border-light: #e5e8e3;
+    --border-gold: #e2cca0;
+    --shadow-soft: 0 4px 20px rgba(11, 87, 56, 0.08);
+    --shadow-hover: 0 12px 30px rgba(11, 87, 56, 0.15);
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--cream-bg);
+    color: var(--text-dark);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ─── Institutional Header Strip ─── */
+.inst-header-strip {
+    background: #ffffff;
+    border-bottom: 3px solid var(--accent-gold);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.inst-brand-combo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.brand-logo-main {
+    height: 54px;
+    width: auto;
+    object-fit: contain;
+}
+
+.brand-logo-trust {
+    height: 46px;
+    width: auto;
+    object-fit: contain;
+}
+
+.inst-title-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.inst-title-main {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--primary-green);
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+}
+
+.inst-subtitle {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.inst-trust-text {
+    color: var(--accent-gold-dark);
+    font-weight: 700;
+}
+
+/* ─── Navigation Bar (Strict 7 Items) ─── */
+.navbar-custom {
+    background: var(--primary-green);
+    border-bottom: 2px solid var(--accent-gold);
+    padding: 0 24px;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 14px rgba(6, 64, 40, 0.2);
+}
+
+.nav-brand-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-college-logo {
+    height: 38px;
+    width: auto;
+    background: #ffffff;
+    padding: 2px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--accent-gold);
+}
+
+.nav-smartgate-title {
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 1.25rem;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-smartgate-title span.shield {
+    color: var(--accent-gold-light);
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+}
+
+.nav-item {
+    margin: 0;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-link:hover, .nav-link.active {
+    background: rgba(196, 154, 45, 0.2);
+    color: var(--accent-gold-light);
+}
+
+.nav-link-login {
+    background: var(--accent-gold);
+    color: #0b5738 !important;
+    font-weight: 800;
+    padding: 9px 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.nav-link-login:hover {
+    background: var(--accent-gold-light);
+    color: #064028 !important;
+    transform: translateY(-1px);
+}
+
+/* Mobile Toggler */
+.nav-mobile-toggle {
+    display: none;
+    background: none;
+    border: 1.5px solid var(--accent-gold);
+    color: #ffffff;
+    font-size: 1.3rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+@media (max-width: 980px) {
+    .inst-header-strip {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    .inst-brand-combo {
+        flex-direction: column;
+    }
+    .nav-mobile-toggle {
+        display: block;
+    }
+    .nav-menu {
+        display: none;
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: var(--primary-green-dark);
+        flex-direction: column;
+        padding: 16px;
+        gap: 8px;
+        border-bottom: 2px solid var(--accent-gold);
+    }
+    .nav-menu.show {
+        display: flex;
+    }
+    .nav-link {
+        width: 100%;
+        padding: 10px 16px;
+    }
+}
+
+/* ─── Hero Section (Green & Gold) ─── */
+.hero-portal {
+    background: linear-gradient(180deg, #ffffff 0%, var(--gold-subtle) 100%);
+    border-bottom: 1px solid var(--border-gold);
+    padding: 60px 24px;
+    text-align: center;
+    position: relative;
+}
+
+.hero-inner {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.hero-inst-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1.5px solid var(--accent-gold);
+    color: var(--primary-green);
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 6px 18px;
+    border-radius: 30px;
+    box-shadow: 0 2px 8px rgba(196, 154, 45, 0.15);
+    margin-bottom: 20px;
+}
+
+.hero-main-title {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--primary-green);
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 8px;
+}
+
+.hero-tagline {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent-gold-dark);
+    margin-bottom: 18px;
+    letter-spacing: 0.2px;
+}
+
+.hero-description {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    max-width: 760px;
+    margin: 0 auto 32px;
+}
+
+.hero-actions-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.btn-primary-green {
+    background: var(--primary-green);
+    color: #ffffff !important;
+    font-size: 0.98rem;
+    font-weight: 800;
+    padding: 14px 28px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(11, 87, 56, 0.35);
+    transition: all 0.2s ease;
+}
+
+.btn-primary-green:hover {
+    background: var(--primary-green-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(11, 87, 56, 0.45);
+}
+
+.btn-gold-outline {
+    background: #ffffff;
+    color: var(--primary-green) !important;
+    border: 2px solid var(--accent-gold);
+    font-size: 0.98rem;
+    font-weight: 800;
+    padding: 13px 26px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-gold-outline:hover {
+    background: var(--gold-subtle);
+    border-color: var(--accent-gold-dark);
+    transform: translateY(-2px);
+}
+
+/* ─── Registration Hub Cards Section ─── */
+.section-hub {
+    padding: 60px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section-head {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-badge-gold {
+    color: var(--accent-gold-dark);
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.section-heading-green {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary-green);
+    letter-spacing: -0.5px;
+}
+
+.reg-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.reg-card-item {
+    background: #ffffff;
+    border: 1.5px solid var(--border-light);
+    border-top: 4px solid var(--primary-green);
+    border-radius: 16px;
+    padding: 30px 26px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.25s ease;
+}
+
+.reg-card-item.featured {
+    border-top: 4px solid var(--accent-gold);
+    background: #ffffff;
+}
+
+.reg-card-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--accent-gold);
+}
+
+.reg-icon-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: var(--gold-subtle);
+    border: 1px solid var(--border-gold);
+    color: var(--primary-green);
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+
+.reg-card-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary-green);
+    margin-bottom: 8px;
+}
+
+.reg-card-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+.reg-card-meta {
+    font-size: 0.78rem;
+    color: var(--accent-gold-dark);
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reg-card-btn {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.92rem;
+    display: block;
+    transition: all 0.2s;
+}
+
+.btn-card-student {
+    background: var(--primary-green);
+    color: #ffffff;
+}
+
+.btn-card-student:hover {
+    background: var(--primary-green-dark);
+}
+
+.btn-card-faculty {
+    background: var(--gold-subtle);
+    color: var(--primary-green);
+    border: 1.5px solid var(--accent-gold);
+}
+
+.btn-card-faculty:hover {
+    background: var(--accent-gold);
+    color: #ffffff;
+}
+
+.btn-card-hod {
+    background: #ffffff;
+    color: var(--accent-gold-dark);
+    border: 1.5px solid var(--accent-gold);
+}
+
+.btn-card-hod:hover {
+    background: var(--accent-gold);
+    color: #ffffff;
+}
+
+/* ─── 5 Institutional Roles Grid ─── */
+.section-roles-wrap {
+    background: #ffffff;
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+    padding: 60px 24px;
+}
+
+.roles-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.roles-grid-five {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 20px;
+}
+
+.role-tile {
+    background: var(--cream-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 24px 20px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.role-tile:hover {
+    border-color: var(--accent-gold);
+    background: #ffffff;
+    box-shadow: var(--shadow-soft);
+}
+
+.role-tile-icon {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+}
+
+.role-tile-name {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary-green);
+    margin-bottom: 6px;
+}
+
+.role-tile-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* ─── Academic Departments Grid ─── */
+.section-depts {
+    padding: 60px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.depts-grid-five {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+}
+
+.dept-tile {
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-left: 4px solid var(--accent-gold);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--shadow-soft);
+}
+
+.dept-tile h4 {
+    color: var(--primary-green);
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.dept-tile p {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ─── Footer (No About Links) ─── */
+.inst-footer-clean {
+    background: var(--primary-green-dark);
+    color: #ffffff;
+    border-top: 3px solid var(--accent-gold);
+    padding: 40px 24px 20px;
+}
+
+.footer-inner-clean {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-brand-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.footer-brand-meta {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-nav-pills {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.footer-nav-pills a {
+    color: var(--accent-gold-light);
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: color 0.15s;
+}
+
+.footer-nav-pills a:hover {
+    color: #ffffff;
+}
+
+.footer-copy-text {
+    max-width: 1200px;
+    margin: 20px auto 0;
+    text-align: center;
+    font-size: 0.76rem;
+    color: rgba(255, 255, 255, 0.55);
+}

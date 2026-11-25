@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %}Add Staff User – Admin{% endblock %}
+{% block page_title %}Provision New Staff User{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Administrator Console</div>
+<a href="{{ url_for('admin_dashboard') }}"><span class="nav-icon">📊</span> Overview Dashboard</a>
+<a href="{{ url_for('admin_users') }}"><span class="nav-icon">👥</span> User Management</a>
+<a href="{{ url_for('admin_user_new') }}" class="active"><span class="nav-icon">➕</span> Add Staff User</a>
+<a href="{{ url_for('admin_departments') }}"><span class="nav-icon">🏫</span> Departments (5)</a>
+<a href="{{ url_for('admin_courses') }}"><span class="nav-icon">🎓</span> Courses (13)</a>
+<a href="{{ url_for('admin_classes') }}"><span class="nav-icon">📚</span> Annual Classes</a>
+<a href="{{ url_for('admin_tutor_assignment') }}"><span class="nav-icon">👩‍🏫</span> Tutor Assignment</a>
+<a href="{{ url_for('admin_hod_assignment') }}"><span class="nav-icon">🏛️</span> HOD Assignment</a>
+<a href="{{ url_for('admin_reports') }}"><span class="nav-icon">📑</span> Master Reports</a>
+<a href="{{ url_for('admin_audit_logs') }}"><span class="nav-icon">📜</span> Institutional Audit</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">Provision Staff Account ➕</h1>
+        <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">
+            Directly create and activate staff credentials for Class Tutors, HODs, Gate Guards, or Administrators
+        </p>
+    </div>
+    <a href="{{ url_for('admin_users') }}" class="btn btn-outline btn-sm">← Back to Users</a>
+</div>
+
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;max-width:700px;margin:0 auto;padding:28px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+    <form method="POST" action="{{ url_for('admin_user_new') }}">
+        <h3 style="color:#0f172a;font-size:1.1rem;font-weight:800;margin-bottom:16px;border-bottom:1px solid #f1f5f9;padding-bottom:10px;">
+            🔐 Account &amp; Role Particulars
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+            <div class="form-group">
+                <label class="form-label">System Role <span style="color:#ef4444;">*</span></label>
+                <select name="role" id="roleSelect" class="form-control" required onchange="onRoleChange(this.value)">
+                    <option value="tutor" selected>👩‍🏫 Class Tutor</option>
+                    <option value="hod">🏛️ Department HOD</option>
+                    <option value="guard">🛡️ Gate Guard</option>
+                    <option value="admin">⚙️ Administrator</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Staff Full Name <span style="color:#ef4444;">*</span></label>
+                <input type="text" name="name" class="form-control" placeholder="e.g. Dr. Meena Krishnan" required autofocus>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+            <div class="form-group">
+                <label class="form-label">Username <span style="color:#ef4444;">*</span></label>
+                <input type="text" name="username" class="form-control" placeholder="e.g. tutor_cs" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Official College Email <span style="color:#ef4444;">*</span></label>
+                <input type="email" name="email" class="form-control" placeholder="e.g. staff@srcw.ac.in" required>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+            <div class="form-group">
+                <label class="form-label">Initial Password <span style="color:#ef4444;">*</span></label>
+                <input type="password" name="password" class="form-control" placeholder="Minimum 4 characters" value="staff123" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Employee ID / Code</label>
+                <input type="text" name="employee_id" class="form-control" placeholder="e.g. EMP-TUT-008" style="text-transform:uppercase;">
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+            <div class="form-group">
+                <label class="form-label">Contact Mobile Number</label>
+                <input type="tel" name="phone" class="form-control" placeholder="10-digit mobile number">
+            </div>
+            <div class="form-group" id="deptGroup">
+                <label class="form-label">Assigned Department</label>
+                <select name="department_id" class="form-control">
+                    <option value="">-- Select Department --</option>
+                    {% for d in departments %}
+                    <option value="{{ d['id'] }}">{{ d['name'] }} ({{ d['code'] }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div id="tutorFields" style="margin-bottom:16px;">
+            <div class="form-group">
+                <label class="form-label">Designation</label>
+                <input type="text" name="designation" class="form-control" placeholder="e.g. Assistant Professor &amp; Class Tutor" value="Assistant Professor &amp; Class Tutor">
+            </div>
+        </div>
+
+        <div id="guardFields" style="display:none;margin-bottom:16px;">
+            <div class="form-group">
+                <label class="form-label">Guard Duty Shift</label>
+                <select name="shift" class="form-control">
+                    <option value="General" selected>General Shift</option>
+                    <option value="Morning">Morning Shift</option>
+                    <option value="Evening">Evening Shift</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;padding:14px;font-size:0.95rem;font-weight:800;border-radius:10px;margin-top:10px;">
+            ✓ Create &amp; Activate Staff Account
+        </button>
+    </form>
+</div>
+
+<script>
+function onRoleChange(role) {
+    const deptGroup = document.getElementById('deptGroup');
+    const tutorFields = document.getElementById('tutorFields');
+    const guardFields = document.getElementById('guardFields');
+
+    if (role === 'tutor' || role === 'hod') {
+        deptGroup.style.display = 'block';
+    } else {
+        deptGroup.style.display = 'none';
+    }
+
+    if (role === 'tutor') {
+        tutorFields.style.display = 'block';
+    } else {
+        tutorFields.style.display = 'none';
+    }
+
+    if (role === 'guard') {
+        guardFields.style.display = 'block';
+    } else {
+        guardFields.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

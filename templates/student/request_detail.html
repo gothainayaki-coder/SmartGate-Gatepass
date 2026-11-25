@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% block title %}Request Details – #{{ req['id'] }}{% endblock %}
+{% block page_title %}Gate Pass Details{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Student Portal</div>
+<a href="{{ url_for('student_dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+<a href="{{ url_for('student_new_request') }}"><span class="nav-icon">➕</span> Apply Gate Pass</a>
+<a href="{{ url_for('student_my_requests') }}" class="active"><span class="nav-icon">📋</span> My Gate Passes</a>
+<a href="{{ url_for('student_history') }}"><span class="nav-icon">📜</span> Exit History</a>
+<a href="{{ url_for('student_profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+        <a href="{{ url_for('student_my_requests') }}" class="btn btn-outline btn-sm">← Back</a>
+        <div>
+            <h1 style="font-size:1.4rem;font-weight:800;color:#0f172a;margin:0;">Pass #{{ req['pass_code'] or req['id'] }}</h1>
+            <p style="color:#64748b;font-size:0.85rem;margin:2px 0 0;">{{ req['reason'] }} · {{ req['request_date'] }}</p>
+        </div>
+    </div>
+    {% if req['status'] in ('APPROVED', 'OUTSIDE', 'COMPLETED') %}
+    <a href="{{ url_for('student_pass', req_id=req['id']) }}" class="btn btn-primary btn-sm" style="font-weight:700;">
+        🪪 View Official QR Pass
+    </a>
+    {% endif %}
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:20px;">
+        <!-- Particulars Card -->
+        <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+            <div class="card-header" style="padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+                <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">📋 Application Particulars</h3>
+                {% set s = req['status'] %}
+                {% if s == 'PENDING_TUTOR' %}
+                <span class="badge badge-pending">⏳ Tutor Review</span>
+                {% elif s == 'PENDING_HOD' %}
+                <span class="badge badge-pending" style="background:#e0e7ff;color:#3730a3;">⏳ HOD Review</span>
+                {% elif s == 'APPROVED' %}
+                <span class="badge badge-approved">✅ Approved</span>
+                {% elif s in ('OUTSIDE', 'COMPLETED') %}
+                <span class="badge badge-completed">✔ Exited (Completed)</span>
+                {% elif 'REJECTED' in s %}
+                <span class="badge badge-rejected">❌ Rejected</span>
+                {% else %}
+                <span class="badge badge-normal">{{ s }}</span>
+                {% endif %}
+            </div>
+            <div class="card-body" style="padding:20px;">
+                <div class="detail-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:0.88rem;">
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Pass Code</span>
+                        <strong style="color:#2563eb;font-family:monospace;font-size:1rem;">{{ req['pass_code'] or 'Pending Approval' }}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Departure Date</span>
+                        <strong>{{ req['request_date'] }}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Permitted Exit Time</span>
+                        <strong style="color:#2563eb;">{{ req['exit_time'] }}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Destination</span>
+                        <strong>{{ req['destination'] }}</strong>
+                    </div>
+                    <div style="grid-column:span 2;">
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Reason</span>
+                        <p style="margin:4px 0 0;line-height:1.5;">{{ req['reason'] }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approval History -->
+        <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+            <div class="card-header" style="padding:16px 20px;border-bottom:1px solid #f1f5f9;">
+                <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">📜 Institutional Decision Trail</h3>
+            </div>
+            <div class="card-body" style="padding:20px;">
+                {% if approvals %}
+                    {% for a in approvals %}
+                    <div style="display:flex;align-items:start;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;">
+                        <div style="width:36px;height:36px;border-radius:50%;background:{% if a['decision']=='APPROVED' %}#ecfdf5{% else %}#fef2f2{% endif %};color:{% if a['decision']=='APPROVED' %}#10b981{% else %}#ef4444{% endif %};display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0;">
+                            {% if a['decision'] == 'APPROVED' %}✓{% else %}✗{% endif %}
+                        </div>
+                        <div style="flex:1;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <strong style="color:#0f172a;font-size:0.9rem;">
+                                    {{ 'Class Tutor Recommendation' if a['role'] == 'tutor' else 'Head of Department Approval' if a['role'] == 'hod' else a['role'].title() }}
+                                </strong>
+                                <span class="badge {% if a['decision']=='APPROVED' %}badge-approved{% else %}badge-rejected{% endif %}">{{ a['decision'] }}</span>
+                            </div>
+                            <div style="font-size:0.78rem;color:#64748b;margin-top:2px;">
+                                By {{ a['approver_username'] }} · {{ a['approved_at'][:16] if a['approved_at'] else '' }}
+                            </div>
+                            {% if a['remarks'] %}
+                            <div style="margin-top:6px;font-size:0.84rem;color:#334155;background:#f8fafc;padding:6px 10px;border-radius:6px;border-left:3px solid #cbd5e1;">
+                                "{{ a['remarks'] }}"
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <p style="color:#94a3b8;text-align:center;padding:16px;margin:0;font-size:0.88rem;">Application is currently in review.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Exit Log Details -->
+        {% if req['actual_exit_time'] %}
+        <div class="card" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:16px;padding:20px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <span style="font-size:1.8rem;">🚪</span>
+                <div>
+                    <h4 style="margin:0;color:#166534;font-size:1rem;font-weight:800;">Main Gate Departure Verified</h4>
+                    <p style="margin:4px 0 0;font-size:0.82rem;color:#15803d;">
+                        Verified by Security Guard <strong>{{ req['guard_username'] or 'Gate Officer' }}</strong> at <strong>{{ req['actual_exit_time'] }}</strong>. Pass marked COMPLETED.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Timeline Sidebar -->
+    <div>
+        <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:20px;">
+            <h4 style="font-size:1rem;font-weight:800;color:#0f172a;margin-bottom:16px;">Workflow Progress</h4>
+            {% set tut_app = approvals|selectattr('role','eq','tutor')|list %}
+            {% set hod_app = approvals|selectattr('role','eq','hod')|list %}
+            
+            <div style="display:flex;flex-direction:column;gap:18px;">
+                <!-- 1. Submission -->
+                <div style="display:flex;gap:12px;align-items:start;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:#10b981;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.82rem;flex-shrink:0;">✓</div>
+                    <div>
+                        <strong style="color:#0f172a;font-size:0.88rem;display:block;">Application Submitted</strong>
+                        <span style="color:#64748b;font-size:0.76rem;">{{ req['created_at'][:16] if req['created_at'] else '' }}</span>
+                    </div>
+                </div>
+
+                <!-- 2. Tutor -->
+                <div style="display:flex;gap:12px;align-items:start;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:{% if tut_app %}{% if tut_app[0]['decision']=='APPROVED' %}#10b981{% else %}#ef4444{% endif %}{% elif s=='PENDING_TUTOR' %}#f59e0b{% else %}#e2e8f0{% endif %};color:{% if tut_app or s=='PENDING_TUTOR' %}#ffffff{% else %}#64748b{% endif %};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.82rem;flex-shrink:0;">
+                        {% if tut_app %}{% if tut_app[0]['decision']=='APPROVED' %}✓{% else %}✗{% endif %}{% elif s=='PENDING_TUTOR' %}⏳{% else %}2{% endif %}
+                    </div>
+                    <div>
+                        <strong style="color:#0f172a;font-size:0.88rem;display:block;">Class Tutor Review</strong>
+                        <span style="color:#64748b;font-size:0.76rem;">
+                            {% if tut_app %}{{ tut_app[0]['decision'] }}{% elif s=='PENDING_TUTOR' %}Awaiting Review{% else %}Pending{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 3. HOD -->
+                <div style="display:flex;gap:12px;align-items:start;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:{% if hod_app %}{% if hod_app[0]['decision']=='APPROVED' %}#10b981{% else %}#ef4444{% endif %}{% elif s=='PENDING_HOD' %}#f59e0b{% else %}#e2e8f0{% endif %};color:{% if hod_app or s=='PENDING_HOD' %}#ffffff{% else %}#64748b{% endif %};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.82rem;flex-shrink:0;">
+                        {% if hod_app %}{% if hod_app[0]['decision']=='APPROVED' %}✓{% else %}✗{% endif %}{% elif s=='PENDING_HOD' %}⏳{% else %}3{% endif %}
+                    </div>
+                    <div>
+                        <strong style="color:#0f172a;font-size:0.88rem;display:block;">HOD Approval</strong>
+                        <span style="color:#64748b;font-size:0.76rem;">
+                            {% if hod_app %}{{ hod_app[0]['decision'] }}{% elif s=='PENDING_HOD' %}Awaiting Approval{% else %}Pending{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 4. Gate Verification -->
+                <div style="display:flex;gap:12px;align-items:start;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:{% if req['actual_exit_time'] %}#10b981{% elif s=='APPROVED' %}#3b82f6{% else %}#e2e8f0{% endif %};color:{% if req['actual_exit_time'] or s=='APPROVED' %}#ffffff{% else %}#64748b{% endif %};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.82rem;flex-shrink:0;">
+                        {% if req['actual_exit_time'] %}✓{% elif s=='APPROVED' %}🚶{% else %}4{% endif %}
+                    </div>
+                    <div>
+                        <strong style="color:#0f172a;font-size:0.88rem;display:block;">Main Gate Departure</strong>
+                        <span style="color:#64748b;font-size:0.76rem;">
+                            {% if req['actual_exit_time'] %}Exited (Completed){% elif s=='APPROVED' %}Ready at Gate{% else %}Pending{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {% if s in ('PENDING_TUTOR', 'PENDING_HOD') %}
+            <form method="POST" action="{{ url_for('student_cancel_request', req_id=req['id']) }}" style="margin-top:24px;border-top:1px solid #f1f5f9;padding-top:16px;">
+                <button type="submit" class="btn btn-outline btn-sm" style="width:100%;color:#ef4444;border-color:#fca5a5;" onclick="return confirm('Cancel this pass request?');">
+                    ✕ Cancel Application
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

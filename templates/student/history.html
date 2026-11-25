@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Gate Pass History – SmartGate{% endblock %}
+{% block page_title %}My Gate Pass History{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Student Portal</div>
+<a href="{{ url_for('student_dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+<a href="{{ url_for('student_new_request') }}"><span class="nav-icon">➕</span> Request Gate Pass</a>
+<a href="{{ url_for('student_my_requests') }}"><span class="nav-icon">📋</span> My Requests</a>
+<a href="{{ url_for('student_approved_passes') }}"><span class="nav-icon">✅</span> Approved Passes</a>
+<a href="{{ url_for('student_history') }}" class="active"><span class="nav-icon">📜</span> History</a>
+<a href="{{ url_for('student_profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;">
+    <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">📜 Complete Gate Pass History</h1>
+    <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">Historical record and audit trail of all your gate pass exit requests</p>
+</div>
+
+{% if history %}
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.03);">
+    <div class="card-header" style="padding:16px 24px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">Requests &amp; Departures ({{ history|length }})</h3>
+    </div>
+    <div class="card-body" style="padding:0;">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pass Code</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Reason</th>
+                        <th>Destination</th>
+                        <th>Requested Exit</th>
+                        <th>Actual Departure</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in history %}
+                    <tr>
+                        <td>
+                            {% if h['pass_code'] %}
+                            <strong style="font-family:monospace;color:#2563eb;font-size:0.9rem;">{{ h['pass_code'] }}</strong>
+                            {% else %}
+                            <span style="color:#94a3b8;font-size:0.85rem;">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space:nowrap;font-size:0.88rem;color:#334155;font-weight:600;">{{ h['request_date'] }}</td>
+                        <td>
+                            {% if h['request_type'] == 'Emergency' %}
+                            <span class="badge badge-emergency" style="font-size:0.72rem;">🔴 Emergency</span>
+                            {% else %}
+                            <span class="badge badge-outside" style="font-size:0.72rem;">Normal</span>
+                            {% endif %}
+                        </td>
+                        <td style="max-width:220px;">
+                            <div style="font-size:0.88rem;color:#0f172a;font-weight:600;">{{ h['reason'][:40] }}{% if h['reason']|length > 40 %}…{% endif %}</div>
+                        </td>
+                        <td style="font-size:0.85rem;color:#64748b;">{{ h['destination'] }}</td>
+                        <td style="font-size:0.85rem;color:#0f172a;font-weight:600;">{{ h['exit_time'] }}</td>
+                        <td style="font-size:0.85rem;color:#059669;font-weight:600;">
+                            {% if h['actual_exit_time'] %}
+                            🚪 {{ h['actual_exit_time'][:16] }}
+                            {% else %}
+                            <span style="color:#94a3b8;">Not departed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set s = h['status'] %}
+                            {% if s == 'PENDING_TUTOR' %}
+                            <span class="badge badge-pending">⏳ Tutor Review</span>
+                            {% elif s == 'PENDING_HOD' %}
+                            <span class="badge badge-pending">⏳ HOD Review</span>
+                            {% elif s == 'APPROVED' %}
+                            <span class="badge badge-approved">✅ Approved</span>
+                            {% elif s == 'COMPLETED' or s == 'OUTSIDE' %}
+                            <span class="badge badge-completed">✔ Completed</span>
+                            {% elif s == 'REJECTED' %}
+                            <span class="badge badge-rejected">❌ Rejected</span>
+                            {% elif s == 'CANCELLED' %}
+                            <span class="badge" style="background:#f1f5f9;color:#64748b;">Cancelled</span>
+                            {% else %}
+                            <span class="badge">{{ s }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display:flex;gap:6px;">
+                                <a href="{{ url_for('student_request_detail', req_id=h['id']) }}" class="btn btn-outline btn-sm" style="font-size:0.75rem;padding:4px 8px;">
+                                    View
+                                </a>
+                                {% if h['status'] in ('APPROVED', 'COMPLETED', 'OUTSIDE') and h['pass_code'] %}
+                                <a href="{{ url_for('student_pass', req_id=h['id']) }}" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 8px;">
+                                    🪪 QR Pass
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">📜</div>
+    <h3>No gate pass history</h3>
+    <p>Your previous gate pass requests and exit records will appear here.</p>
+    <a href="{{ url_for('student_new_request') }}" class="btn btn-primary" style="margin-top:16px;">
+        ➕ Create New Gate Pass Request
+    </a>
+</div>
+{% endif %}
+{% endblock %}

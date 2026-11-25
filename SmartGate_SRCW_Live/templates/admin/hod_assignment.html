@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}HOD Mapping – Admin{% endblock %}
+{% block page_title %}Department HOD Assignment Console{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Administrator Console</div>
+<a href="{{ url_for('admin_dashboard') }}"><span class="nav-icon">📊</span> Overview Dashboard</a>
+<a href="{{ url_for('admin_users') }}"><span class="nav-icon">👥</span> User Management</a>
+<a href="{{ url_for('admin_user_new') }}"><span class="nav-icon">➕</span> Add Staff User</a>
+<a href="{{ url_for('admin_departments') }}"><span class="nav-icon">🏫</span> Departments (5)</a>
+<a href="{{ url_for('admin_courses') }}"><span class="nav-icon">🎓</span> Courses (13)</a>
+<a href="{{ url_for('admin_classes') }}"><span class="nav-icon">📚</span> Annual Classes</a>
+<a href="{{ url_for('admin_tutor_assignment') }}"><span class="nav-icon">👩‍🏫</span> Tutor Assignment</a>
+<a href="{{ url_for('admin_hod_assignment') }}" class="active"><span class="nav-icon">🏛️</span> HOD Assignment</a>
+<a href="{{ url_for('admin_reports') }}"><span class="nav-icon">📑</span> Master Reports</a>
+<a href="{{ url_for('admin_audit_logs') }}"><span class="nav-icon">📜</span> Institutional Audit</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;">
+    <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">Department HOD Appointments 🏛️</h1>
+    <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">
+        Assign Heads of Departments for the 5 official academic units of Sri Ramakrishna College of Arts &amp; Science for Women
+    </p>
+</div>
+
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Department</th>
+                    <th>Code</th>
+                    <th>Currently Appointed HOD</th>
+                    <th>Contact Phone</th>
+                    <th>Reassign / Appoint HOD</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in departments %}
+                <tr>
+                    <td>
+                        <strong style="color:#0f172a;font-size:0.95rem;">{{ d['name'] }}</strong>
+                    </td>
+                    <td>
+                        <span class="badge" style="background:#eff6ff;color:#1e40af;font-family:monospace;">{{ d['code'] }}</span>
+                    </td>
+                    <td>
+                        {% if d['hod_name'] %}
+                        <div style="font-weight:700;color:#166534;">{{ d['hod_name'] }}</div>
+                        <div style="font-size:0.75rem;color:#64748b;font-family:monospace;">{{ d['hod_username'] }}</div>
+                        {% else %}
+                        <span style="color:#dc2626;font-size:0.8rem;font-weight:700;">⚠️ No HOD Appointed</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ d['hod_phone'] or '—' }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_hod_assignment') }}" style="display:flex;gap:8px;align-items:center;">
+                            <input type="hidden" name="department_id" value="{{ d.id }}">
+                            <select name="user_id" class="form-control" style="font-size:0.82rem;padding:6px 10px;min-width:180px;">
+                                <option value="" disabled selected>-- Select HOD User --</option>
+                                {% for h in hods %}
+                                <option value="{{ h['user_id'] }}" {% if d['hod_username'] == h['username'] %}selected{% endif %}>
+                                    {{ h['name'] }} ({{ h['username'] }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-xs" style="padding:7px 12px;font-weight:700;">
+                                Appoint
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

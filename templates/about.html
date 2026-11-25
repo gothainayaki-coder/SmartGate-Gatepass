@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About SmartGate | Sri Ramakrishna College of Arts & Science for Women</title>
+    <meta name="description" content="About SmartGate - Digital Gate Pass Management System for Sri Ramakrishna College of Arts & Science for Women (SNR Sons Trust)">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+    <style>
+        .inst-header-strip {
+            background: #ffffff;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .inst-brand-combo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .brand-logo-main {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+        }
+        .brand-logo-trust {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+        .about-wrap {
+            max-width: 1040px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .about-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 36px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            border: 1px solid #e2e8f0;
+        }
+        .about-card h2 {
+            color: #0f172a;
+            font-size: 1.45rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tech-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            margin: 4px;
+            background: #f1f5f9;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+        }
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            margin-top: 16px;
+        }
+        .role-box {
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+        .role-box h4 {
+            margin-bottom: 6px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .role-box p {
+            font-size: 0.86rem;
+            color: #64748b;
+            line-height: 1.5;
+            margin: 0;
+        }
+        .depts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 14px;
+        }
+        .depts-table th, .depts-table td {
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+            font-size: 0.88rem;
+        }
+        .depts-table th {
+            background: #f8fafc;
+            font-weight: 800;
+            color: #0f172a;
+        }
+    </style>
+</head>
+<body style="background:#f8fafc;">
+
+    <!-- TOP BRANDING STRIP -->
+    <header class="inst-header-strip">
+        <div class="inst-brand-combo">
+            <img src="{{ url_for('static', filename='images/srcw_logo.png') }}" alt="SRCW Logo" class="brand-logo-main">
+            <div>
+                <div style="font-size:1.05rem;font-weight:800;color:#0f172a;">Sri Ramakrishna College of Arts &amp; Science for Women</div>
+                <div style="font-size:0.75rem;color:#64748b;font-weight:600;">Autonomous Institution · Run by SNR Sons Trust, Coimbatore</div>
+            </div>
+        </div>
+        <div>
+            <img src="{{ url_for('static', filename='images/snr_trust_logo.jpg') }}" alt="SNR Sons Trust" class="brand-logo-trust">
+        </div>
+    </header>
+
+    <!-- NAVBAR -->
+    <nav style="background:#0f172a;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;">
+        <a href="/" style="color:#38bdf8;text-decoration:none;font-weight:800;font-size:1rem;">🛡️ SmartGate System</a>
+        <div style="display:flex;gap:16px;align-items:center;">
+            <a href="/" style="color:#cbd5e1;text-decoration:none;font-size:0.86rem;font-weight:600;">Home</a>
+            <a href="{{ url_for('register') }}" style="color:#cbd5e1;text-decoration:none;font-size:0.86rem;font-weight:600;">Student Sign Up</a>
+            <a href="{{ url_for('login') }}" style="background:#2563eb;color:#ffffff;text-decoration:none;padding:6px 14px;border-radius:6px;font-weight:700;font-size:0.86rem;">Login →</a>
+        </div>
+    </nav>
+
+    <div class="about-wrap">
+        <!-- Main Title -->
+        <div style="text-align:center;margin-bottom:36px;">
+            <span style="color:#2563eb;font-weight:800;font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;">Institutional Overview</span>
+            <h1 style="font-size:2.2rem;font-weight:900;color:#0f172a;margin-top:6px;letter-spacing:-0.5px;">SmartGate Digital Management System</h1>
+            <p style="font-size:1rem;color:#64748b;max-width:700px;margin:8px auto 0;">
+                Designed specifically for Sri Ramakrishna College of Arts & Science for Women under SNR Sons Trust, ensuring disciplined, secure, and paperless campus student exit workflows.
+            </p>
+        </div>
+
+        <!-- College Profile -->
+        <div class="about-card">
+            <h2>🏛️ Institution Profile</h2>
+            <p style="color:#475569;line-height:1.7;margin-bottom:12px;">
+                <strong>Sri Ramakrishna College of Arts and Science for Women (SRCW)</strong> is an autonomous institution affiliated to Bharathiar University and re-accredited by NAAC. Established under the aegis of <strong>SNR Sons Trust</strong>, the college has been a premier institution championing women’s empowerment and academic distinction in Coimbatore, Tamil Nadu.
+            </p>
+            <p style="color:#475569;line-height:1.7;margin:0;">
+                The college day concludes officially at <strong>2:00 PM</strong>. Consequently, the campus gate pass operates as a <strong>single-use exit authorization</strong>. Once a student’s exit is verified at the main security gate, the pass is recorded in institutional logs and immediately marked as <strong>COMPLETED</strong> without requiring any return workflow.
+            </p>
+        </div>
+
+        <!-- Exactly 5 Roles -->
+        <div class="about-card">
+            <h2>👥 Exactly Five Institutional Roles</h2>
+            <div class="role-grid">
+                <div class="role-box">
+                    <h4>1. Student</h4>
+                    <p>Self-registers into their specific degree program, submits departure requests with reason and permitted exit time, and presents the authorized digital QR pass.</p>
+                </div>
+                <div class="role-box">
+                    <h4>2. Class Tutor</h4>
+                    <p>Responsible for an assigned annual class. Verifies attendance status, checks parent contact validity, and recommends genuine requests to the HOD.</p>
+                </div>
+                <div class="role-box">
+                    <h4>3. Head of Department (HOD)</h4>
+                    <p>Departmental executive authority. Finalizes gate pass approvals, activates the digital QR pass, and accesses departmental audit reports.</p>
+                </div>
+                <div class="role-box">
+                    <h4>4. Gate Guard</h4>
+                    <p>Stationed at the main campus gate. Employs the interactive camera scanner or manual pass code lookup to authorize student departure.</p>
+                </div>
+                <div class="role-box">
+                    <h4>5. Administrator</h4>
+                    <p>Oversees user accounts, departments, courses, class tutor mappings, HOD appointments, password resets, and the complete institutional audit trail.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Structure -->
+        <div class="about-card">
+            <h2>📚 Academic Departments &amp; Courses (5 Depts, 13 Courses)</h2>
+            <table class="depts-table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Code</th>
+                        <th>Degree Courses Offered</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="5" style="font-weight:700;">Commerce</td>
+                        <td rowspan="5">COM</td>
+                        <td>M.Com CA</td>
+                        <td>2 Years</td>
+                    </tr>
+                    <tr>
+                        <td>B.Com A&amp;F</td>
+                        <td>3 Years</td>
+                    </tr>
+                    <tr>
+                        <td>B.Com PA</td>
+                        <td>3 Years</td>
+                    </tr>
+                    <tr>
+                        <td>B.Com CA</td>
+                        <td>3 Years</td>
+                    </tr>
+                    <tr>
+                        <td>B.Com</td>
+                        <td>3 Years</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="5" style="font-weight:700;">Computer Science</td>
+                        <td rowspan="5">CS</td>
+                        <td>B.Sc Computer Science (CS)</td>
+                        <td>3 Years</td>
+                    </tr>
+                    <tr>
+                        <td>Bachelor of Computer Applications (BCA)</td>
+                        <td>3 Years</td>
+                    </tr>
+                    <tr>
+                        <td>B.Sc Information Technology (IT)</td>
+                        <td>3 Years</td>
+                    </tr>
+                    <tr>
+                        <td>B.Sc Data Analytics (DA)</td>
+                        <td>3 Years</td>
+                    </tr>
+                    <tr>
+                        <td>B.Sc Artificial Intelligence (AI)</td>
+                        <td>3 Years</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:700;">Business Administration</td>
+                        <td>BBA</td>
+                        <td>Bachelor of Business Administration (BBA)</td>
+                        <td>3 Years</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:700;">Department of Biochemistry</td>
+                        <td>BIOCHEM</td>
+                        <td>B.Sc Biochemistry</td>
+                        <td>3 Years</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:700;">Department of Microbiology</td>
+                        <td>MICROBIO</td>
+                        <td>B.Sc Microbiology</td>
+                        <td>3 Years</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="about-card">
+            <h2>💻 100% Local &amp; Free Technology Stack</h2>
+            <p style="color:#475569;line-height:1.6;margin-bottom:14px;">
+                SmartGate runs entirely on local infrastructure with zero recurring subscription fees, paid APIs, or cloud vendor locks:
+            </p>
+            <div>
+                <span class="tech-pill">🐍 Python 3</span>
+                <span class="tech-pill">🌶️ Flask Framework</span>
+                <span class="tech-pill">🗄️ SQLite Database</span>
+                <span class="tech-pill">📷 qrcode &amp; jsQR Engine</span>
+                <span class="tech-pill">🎨 Responsive Bootstrap &amp; CSS3</span>
+                <span class="tech-pill">🔒 Werkzeug Cryptography</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer style="background:#0f172a;color:#94a3b8;padding:24px;text-align:center;font-size:0.8rem;border-top:1px solid rgba(255,255,255,0.1);">
+        &copy; {{ current_year }} Sri Ramakrishna College of Arts &amp; Science for Women (SNR Sons Trust). SmartGate Management System.
+    </footer>
+
+</body>
+</html>

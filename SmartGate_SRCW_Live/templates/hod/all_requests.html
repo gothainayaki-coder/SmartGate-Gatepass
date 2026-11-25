@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}All Department Passes – HOD Portal{% endblock %}
+{% block page_title %}HOD – Department Gate Pass Directory{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Department HOD Portal</div>
+<a href="{{ url_for('hod_dashboard') }}"><span class="nav-icon">🏛️</span> HOD Dashboard</a>
+<a href="{{ url_for('hod_all_requests') }}" class="active"><span class="nav-icon">📋</span> Department Passes</a>
+<a href="{{ url_for('hod_reports') }}"><span class="nav-icon">📊</span> Department Reports</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">📋 Department Gate Pass Directory</h1>
+        <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">
+            Comprehensive log of all student exit permissions in the department of <strong>{{ hod['dept_name'] if hod else '' }}</strong>
+        </p>
+    </div>
+    <a href="{{ url_for('hod_reports') }}" class="btn btn-outline btn-sm">📊 Generate Reports</a>
+</div>
+
+<!-- Filters -->
+<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+    <a href="{{ url_for('hod_all_requests', status='ALL') }}" class="btn btn-sm {% if current_filter == 'ALL' %}btn-primary{% else %}btn-outline{% endif %}">All Applications</a>
+    <a href="{{ url_for('hod_all_requests', status='PENDING') }}" class="btn btn-sm {% if current_filter == 'PENDING' %}btn-primary{% else %}btn-outline{% endif %}">⏳ Pending HOD Review</a>
+    <a href="{{ url_for('hod_all_requests', status='APPROVED') }}" class="btn btn-sm {% if current_filter == 'APPROVED' %}btn-primary{% else %}btn-outline{% endif %}">✅ Authorized / Exited</a>
+    <a href="{{ url_for('hod_all_requests', status='REJECTED') }}" class="btn btn-sm {% if current_filter == 'REJECTED' %}btn-primary{% else %}btn-outline{% endif %}">❌ Rejected</a>
+</div>
+
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+    <div class="card-body" style="padding:0;">
+        {% if requests %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pass Code / ID</th>
+                        <th>Student</th>
+                        <th>Register No</th>
+                        <th>Class</th>
+                        <th>Date</th>
+                        <th>Exit Time</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in requests %}
+                    <tr>
+                        <td>
+                            <strong>{{ r['pass_code'] or ('#' ~ r['id']) }}</strong>
+                        </td>
+                        <td style="font-weight:700;color:#0f172a;">{{ r['student_name'] }}</td>
+                        <td style="font-family:monospace;font-weight:700;">{{ r['register_number'] }}</td>
+                        <td>{{ r['class_name'] }}</td>
+                        <td>{{ r['request_date'] }}</td>
+                        <td style="color:#2563eb;font-weight:700;">{{ r['exit_time'] }}</td>
+                        <td>{{ r['reason'][:30] }}{% if r['reason']|length > 30 %}…{% endif %}</td>
+                        <td>
+                            {% set s = r['status'] %}
+                            {% if s == 'PENDING_HOD' %}
+                            <span class="badge badge-pending">⏳ HOD Review</span>
+                            {% elif s == 'APPROVED' %}
+                            <span class="badge badge-approved">✅ Approved</span>
+                            {% elif s in ('OUTSIDE', 'COMPLETED') %}
+                            <span class="badge badge-completed">✔ Exited (Completed)</span>
+                            {% elif 'REJECTED' in s %}
+                            <span class="badge badge-rejected">❌ Rejected</span>
+                            {% else %}
+                            <span class="badge badge-normal">{{ s }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('hod_request_detail', req_id=r['id']) }}" class="btn btn-outline btn-sm">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:48px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:10px;">📋</div>
+            <h3 style="color:#0f172a;font-weight:800;margin-bottom:6px;">No Gate Passes Found</h3>
+            <p style="color:#64748b;font-size:0.88rem;margin:0;">There are no pass records matching your department filter.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

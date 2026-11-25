@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% block title %}Official Gate Pass – {{ p['pass_code'] if p else '' }}{% endblock %}
+{% block page_title %}Official Gate Pass QR{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Student Portal</div>
+<a href="{{ url_for('student_dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+<a href="{{ url_for('student_new_request') }}"><span class="nav-icon">➕</span> Apply Gate Pass</a>
+<a href="{{ url_for('student_my_requests') }}"><span class="nav-icon">📋</span> My Gate Passes</a>
+<a href="{{ url_for('student_history') }}"><span class="nav-icon">📜</span> Exit History</a>
+<a href="{{ url_for('student_profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        .sidebar, .top-bar, .btn, .flash-messages, .no-print {
+            display: none !important;
+        }
+        .main-content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
+        .page-content {
+            padding: 0 !important;
+        }
+        .gate-pass-print-container {
+            margin: 0 auto !important;
+            box-shadow: none !important;
+            border: 2px solid #0f172a !important;
+        }
+    }
+    .gate-pass-card-srcw {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 2px solid #0f172a;
+        overflow: hidden;
+        box-shadow: 0 16px 36px rgba(0,0,0,0.12);
+        max-width: 440px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    .pass-header-srcw {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #1e3a8a 100%);
+        color: #ffffff;
+        padding: 20px 20px 16px;
+        text-align: center;
+    }
+    .pass-logos-row {
+        background: #ffffff;
+        padding: 6px 12px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+    .pass-logo-img {
+        height: 38px;
+        width: auto;
+        object-fit: contain;
+    }
+    .pass-trust-img {
+        height: 32px;
+        width: auto;
+        object-fit: contain;
+    }
+    .pass-title-main {
+        font-size: 0.92rem;
+        font-weight: 800;
+        line-height: 1.25;
+        letter-spacing: -0.2px;
+    }
+    .pass-title-sub {
+        font-size: 0.72rem;
+        color: #93c5fd;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-top: 2px;
+    }
+    .pass-status-pill {
+        display: inline-block;
+        padding: 3px 12px;
+        border-radius: 12px;
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        margin-top: 8px;
+    }
+    .status-APPROVED { background: #10b981; color: #ffffff; }
+    .status-OUTSIDE { background: #f59e0b; color: #ffffff; }
+    .status-COMPLETED { background: #3b82f6; color: #ffffff; }
+    .status-REJECTED { background: #ef4444; color: #ffffff; }
+
+    .pass-body-srcw {
+        padding: 20px 24px;
+    }
+    .pass-student-strip {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        margin-bottom: 16px;
+    }
+    .student-avatar-box {
+        width: 52px;
+        height: 52px;
+        border-radius: 10px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 1.3rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    .pass-details-table {
+        width: 100%;
+        margin-bottom: 16px;
+        font-size: 0.85rem;
+    }
+    .pass-details-table td {
+        padding: 6px 0;
+        border-bottom: 1px dashed #f1f5f9;
+    }
+    .pass-label-col {
+        color: #64748b;
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        width: 42%;
+    }
+    .pass-val-col {
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .pass-qr-container {
+        text-align: center;
+        padding: 16px;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        margin-bottom: 14px;
+    }
+    .pass-code-banner {
+        font-family: monospace;
+        font-size: 1.15rem;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        color: #1e3a8a;
+        margin-top: 8px;
+    }
+    .pass-footer-note {
+        text-align: center;
+        font-size: 0.72rem;
+        color: #64748b;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header no-print" style="margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <a href="{{ url_for('student_my_requests') }}" class="btn btn-outline btn-sm">← Back to My Requests</a>
+            <div>
+                <h1 style="font-size:1.3rem;font-weight:800;color:#0f172a;margin:0;">🪪 Digital Gate Pass</h1>
+                <p style="color:#64748b;font-size:0.82rem;margin:0;">Present this QR pass to the security guard at the Main Gate</p>
+            </div>
+        </div>
+        <button onclick="window.print()" class="btn btn-primary btn-sm" style="font-weight:700;">🖨️ Print / Save Pass</button>
+    </div>
+</div>
+
+<div class="gate-pass-print-container" style="display:flex;justify-content:center;padding:10px 0 30px;">
+    <div class="gate-pass-card-srcw">
+        <!-- Header Strip -->
+        <div class="pass-header-srcw">
+            <div class="pass-logos-row">
+                <img src="{{ url_for('static', filename='images/srcw_logo.png') }}" alt="SRCW Logo" class="pass-logo-img">
+                <img src="{{ url_for('static', filename='images/snr_trust_logo.jpg') }}" alt="SNR Sons Trust" class="pass-trust-img">
+            </div>
+            <div class="pass-title-main">Sri Ramakrishna College of Arts &amp; Science for Women</div>
+            <div class="pass-title-sub">Official Student Gate Pass (SNR Sons Trust)</div>
+            <span class="pass-status-pill status-{{ p['status'] }}">
+                {{ '✓ APPROVED FOR EXIT' if p['status'] == 'APPROVED' else '✓ EXITED (COMPLETED)' if p['status'] in ('OUTSIDE', 'COMPLETED') else p['status'] }}
+            </span>
+        </div>
+
+        <!-- Pass Body -->
+        <div class="pass-body-srcw">
+            <div class="pass-student-strip">
+                <div class="student-avatar-box">
+                    {% if p['photo'] %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ p['photo']) }}" alt="Photo" style="width:100%;height:100%;object-fit:cover;">
+                    {% else %}
+                    {{ p['name'][0] }}
+                    {% endif %}
+                </div>
+                <div>
+                    <div style="font-weight:800;color:#0f172a;font-size:0.98rem;">{{ p['name'] }}</div>
+                    <div style="font-size:0.78rem;color:#64748b;font-family:monospace;font-weight:700;">{{ p['register_number'] }}</div>
+                    <div style="font-size:0.76rem;color:#2563eb;font-weight:600;">{{ p['class_name'] or p['course_name'] }}</div>
+                </div>
+            </div>
+
+            <!-- Pass Particulars Table (NO RETURN FIELDS) -->
+            <table class="pass-details-table">
+                <tr>
+                    <td class="pass-label-col">Department</td>
+                    <td class="pass-val-col">{{ p['dept_name'] }}</td>
+                </tr>
+                <tr>
+                    <td class="pass-label-col">Permitted Date</td>
+                    <td class="pass-val-col">{{ p['request_date'] }}</td>
+                </tr>
+                <tr>
+                    <td class="pass-label-col">Permitted Exit Time</td>
+                    <td class="pass-val-col" style="color:#2563eb;">{{ p['exit_time'] }}</td>
+                </tr>
+                <tr>
+                    <td class="pass-label-col">Destination</td>
+                    <td class="pass-val-col">{{ p['destination'] }}</td>
+                </tr>
+                <tr>
+                    <td class="pass-label-col">Reason</td>
+                    <td class="pass-val-col">{{ p['reason'] }}</td>
+                </tr>
+                <tr>
+                    <td class="pass-label-col">Category</td>
+                    <td class="pass-val-col">{{ p['student_type'] }}</td>
+                </tr>
+                <tr>
+                    <td class="pass-label-col">Parent Contact</td>
+                    <td class="pass-val-col">{{ p['parent_phone'] }}</td>
+                </tr>
+            </table>
+
+            <!-- QR Code Box -->
+            <div class="pass-qr-container">
+                {% if qr_b64 %}
+                <img src="data:image/png;base64,{{ qr_b64 }}" alt="Gate Pass QR" style="width:160px;height:160px;border-radius:8px;">
+                {% endif %}
+                <div class="pass-code-banner">{{ p['pass_code'] }}</div>
+                <div style="font-size:0.7rem;color:#64748b;margin-top:4px;">Authorized Alphanumeric Security Identifier</div>
+            </div>
+
+            <div class="pass-footer-note">
+                Autonomous Institution · Affiliated to Bharathiar University<br>
+                <strong>Exit-Only Policy:</strong> Pass concludes immediately upon main gate departure verification.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

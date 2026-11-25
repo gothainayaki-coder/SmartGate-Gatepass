@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Annual Classes – Admin{% endblock %}
+{% block page_title %}Annual Classes (Single Class per Year - No Sections){% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Administrator Console</div>
+<a href="{{ url_for('admin_dashboard') }}"><span class="nav-icon">📊</span> Overview Dashboard</a>
+<a href="{{ url_for('admin_users') }}"><span class="nav-icon">👥</span> User Management</a>
+<a href="{{ url_for('admin_user_new') }}"><span class="nav-icon">➕</span> Add Staff User</a>
+<a href="{{ url_for('admin_departments') }}"><span class="nav-icon">🏫</span> Departments (5)</a>
+<a href="{{ url_for('admin_courses') }}"><span class="nav-icon">🎓</span> Courses (13)</a>
+<a href="{{ url_for('admin_classes') }}" class="active"><span class="nav-icon">📚</span> Annual Classes</a>
+<a href="{{ url_for('admin_tutor_assignment') }}"><span class="nav-icon">👩‍🏫</span> Tutor Assignment</a>
+<a href="{{ url_for('admin_hod_assignment') }}"><span class="nav-icon">🏛️</span> HOD Assignment</a>
+<a href="{{ url_for('admin_reports') }}"><span class="nav-icon">📑</span> Master Reports</a>
+<a href="{{ url_for('admin_audit_logs') }}"><span class="nav-icon">📜</span> Institutional Audit</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">Annual Classes ({{ classes|length }})</h1>
+        <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">
+            Institutional structure: exactly <strong>one class per year for each degree course</strong> (Zero sections).
+        </p>
+    </div>
+    <a href="{{ url_for('admin_tutor_assignment') }}" class="btn btn-outline btn-sm">
+        👩‍🏫 Manage Tutor Mapping →
+    </a>
+</div>
+
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Class Title</th>
+                    <th>Course</th>
+                    <th>Department</th>
+                    <th>Year</th>
+                    <th>Assigned Class Tutor</th>
+                    <th>Students</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in classes %}
+                <tr>
+                    <td>
+                        <strong style="color:#0f172a;font-size:0.95rem;">{{ c['class_name'] }}</strong>
+                    </td>
+                    <td>{{ c['course_name'] }}</td>
+                    <td>
+                        <span class="badge" style="background:#eff6ff;color:#1e40af;">{{ c['dept_code'] }}</span>
+                    </td>
+                    <td>
+                        <span class="badge" style="background:#f1f5f9;color:#334155;">Year {{ c['year'] }}</span>
+                    </td>
+                    <td>
+                        {% if c['tutor_name'] %}
+                        <div style="font-weight:700;color:#166534;display:flex;align-items:center;gap:6px;">
+                            <span>👩‍🏫</span> {{ c['tutor_name'] }}
+                        </div>
+                        <div style="font-size:0.75rem;color:#64748b;font-family:monospace;">{{ c['tutor_username'] }}</div>
+                        {% else %}
+                        <span style="color:#dc2626;font-size:0.8rem;font-weight:600;">⚠️ No Tutor Assigned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge" style="background:#ecfdf5;color:#065f46;">{{ c['student_count'] }} Students</span>
+                    </td>
+                    <td style="text-align:right;">
+                        <button onclick="openClassEditModal('{{ c.id }}', '{{ c.class_name }}', '{{ c.tutor_id or 0 }}')" class="btn btn-outline btn-xs">
+                            Assign Tutor
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Assign Tutor Modal -->
+<div id="editClassModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;max-width:440px;width:90%;padding:28px;box-shadow:0 20px 50px rgba(0,0,0,0.3);">
+        <h3 style="margin-top:0;font-size:1.2rem;font-weight:800;color:#0f172a;">Assign Class Tutor</h3>
+        <form id="editClassForm" method="POST" action="">
+            <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label" style="font-size:0.82rem;font-weight:700;">Class Title</label>
+                <input type="text" id="clsName" name="class_name" class="form-control" required>
+            </div>
+            <div class="form-group" style="margin-bottom:20px;">
+                <label class="form-label" style="font-size:0.82rem;font-weight:700;">Designated Class Tutor</label>
+                <select id="clsTutorSelect" name="tutor_id" class="form-control">
+                    <option value="0">-- Unassigned --</option>
+                    {% for t in tutors %}
+                    <option value="{{ t['id'] }}">{{ t['name'] }} ({{ t['dept_code'] }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" onclick="document.getElementById('editClassModal').style.display='none'" class="btn btn-outline btn-sm">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm" style="font-weight:700;">Save Tutor Assignment</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openClassEditModal(id, name, tutorId) {
+    document.getElementById('editClassForm').action = `/admin/class/${id}/edit`;
+    document.getElementById('clsName').value = name;
+    document.getElementById('clsTutorSelect').value = tutorId || "0";
+    document.getElementById('editClassModal').style.display = 'flex';
+}
+</script>
+{% endblock %}

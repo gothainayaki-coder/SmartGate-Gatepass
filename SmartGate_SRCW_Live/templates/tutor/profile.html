@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Class Tutor Profile – SmartGate{% endblock %}
+{% block page_title %}Class Tutor Profile{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Class Tutor Portal</div>
+<a href="{{ url_for('tutor_dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+<a href="{{ url_for('tutor_all_requests', status='PENDING') }}"><span class="nav-icon">⏳</span> Pending Review</a>
+<a href="{{ url_for('tutor_all_requests', status='APPROVED') }}"><span class="nav-icon">✅</span> Forwarded / Approved</a>
+<a href="{{ url_for('tutor_all_requests') }}"><span class="nav-icon">📋</span> All Class Requests</a>
+<a href="{{ url_for('tutor_profile') }}" class="active"><span class="nav-icon">👤</span> My Profile</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;">
+    <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">👤 Class Tutor Profile</h1>
+    <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">Official tutor credentials and academic jurisdiction</p>
+</div>
+
+<div style="display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start;">
+    <!-- Tutor Profile Card -->
+    <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.03);">
+        <div class="card-body" style="text-align:center;padding:32px 24px;">
+            <div style="width:84px;height:84px;border-radius:50%;background:#e0f2fe;color:#0284c7;display:flex;align-items:center;justify-content:center;font-size:2.4rem;font-weight:800;margin:0 auto 16px;border:3px solid #bae6fd;">
+                👩‍🏫
+            </div>
+            <div style="font-size:1.2rem;font-weight:800;color:#0f172a;">{{ tutor['name'] if tutor else session['username'] }}</div>
+            <div style="font-size:0.88rem;color:#0284c7;font-weight:700;margin-top:4px;">{{ tutor['staff_id'] if tutor else 'Staff ID' }}</div>
+            <div style="font-size:0.84rem;color:#64748b;margin-top:4px;">{{ tutor['dept_name'] if tutor else 'Academic Department' }}</div>
+            <div style="margin-top:14px;">
+                <span class="badge badge-approved" style="font-size:0.8rem;padding:6px 12px;">
+                    Stage 1 Reviewing Authority
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jurisdictions & Assigned Classes -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.03);">
+            <div class="card-header" style="padding:16px 24px;border-bottom:1px solid #f1f5f9;">
+                <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">Assigned Class Jurisdiction</h3>
+            </div>
+            <div class="card-body" style="padding:0;">
+                {% if assigned_classes %}
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Class Name</th>
+                                <th>Degree Program</th>
+                                <th>Department</th>
+                                <th>Academic Year</th>
+                                <th>Enrolled Students</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in assigned_classes %}
+                            <tr>
+                                <td style="font-weight:800;color:#0f172a;">{{ c['class_name'] }}</td>
+                                <td style="color:#2563eb;font-weight:600;">{{ c['course_name'] }}</td>
+                                <td style="color:#64748b;">{{ c['dept_name'] }}</td>
+                                <td>Year {{ c['year'] }}</td>
+                                <td><span class="badge badge-outside">{{ c['student_count'] }} Students</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="padding:24px;text-align:center;color:#64748b;">
+                    No classes currently assigned. Contact the Administrator to assign class jurisdiction.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 24px;">
+            <h4 style="font-size:0.95rem;font-weight:800;color:#0f172a;margin-bottom:12px;">Institutional Responsibilities</h4>
+            <ul style="color:#475569;font-size:0.88rem;line-height:1.7;padding-left:20px;">
+                <li>Verify genuine academic, personal, or emergency reason for early departure before 2:00 PM.</li>
+                <li>Verify parental consent via registered guardian phone number prior to recommending.</li>
+                <li>Forward endorsed gate pass requests directly to the Department Head of Department (HOD).</li>
+                <li>Monitor student exit frequency and attendance compliance within assigned classes.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

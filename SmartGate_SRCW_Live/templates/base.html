@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}SmartGate{% endblock %} | Sri Ramakrishna College for Arts and Science for Women</title>
+<meta name="description" content="SmartGate - Official Gate Pass Management System of Sri Ramakrishna College of Arts & Science for Women (SNR Sons Trust)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+  /* Institutional Brand Header in Sidebar */
+  .inst-sidebar-brand {
+    padding: 18px 16px;
+    background: linear-gradient(180deg, rgba(30, 27, 75, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .inst-logos-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #ffffff;
+    padding: 6px 10px;
+    border-radius: 10px;
+  }
+  .inst-logo-srcw {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+  }
+  .inst-logo-snr {
+    height: 34px;
+    width: auto;
+    object-fit: contain;
+  }
+  .inst-text-block {
+    text-align: left;
+  }
+  .inst-college-title {
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.2px;
+  }
+  .inst-trust-sub {
+    color: #cbd5e1;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 2px;
+  }
+  .inst-app-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    margin-top: 4px;
+    width: fit-content;
+  }
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a class="inst-sidebar-brand" href="{{ url_for('index') }}">
+      <div class="inst-logos-row">
+        <img src="{{ url_for('static', filename='images/srcw_logo.png') }}" alt="SRCW Logo" class="inst-logo-srcw">
+        <img src="{{ url_for('static', filename='images/snr_trust_logo.jpg') }}" alt="SNR Sons Trust" class="inst-logo-snr">
+      </div>
+      <div class="inst-text-block">
+        <div class="inst-college-title">Sri Ramakrishna College of Arts &amp; Science for Women</div>
+        <div class="inst-trust-sub">SNR Sons Trust · Coimbatore</div>
+        <div class="inst-app-tag"><span>🛡️</span> SmartGate Portal</div>
+      </div>
+    </a>
+
+    {% if session.get('username') %}
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">
+        {{ session['username'][0].upper() }}
+      </div>
+      <div>
+        <div class="sidebar-username">{{ session['username'] }}</div>
+        <div class="sidebar-role" style="text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;">{{ session['role'] }}</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <nav class="sidebar-nav">
+      {% block sidebar_nav %}
+        {% if session.get('role') == 'admin' %}
+        <div class="nav-section-title">Administrator Console</div>
+        <a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+            <span class="nav-icon">📊</span> Overview Dashboard
+        </a>
+        <a href="{{ url_for('admin_users') }}" class="{% if request.endpoint == 'admin_users' %}active{% endif %}">
+            <span class="nav-icon">👥</span> User Management
+        </a>
+        <a href="{{ url_for('admin_user_new') }}" class="{% if request.endpoint == 'admin_user_new' %}active{% endif %}">
+            <span class="nav-icon">➕</span> Add Staff User
+        </a>
+        <a href="{{ url_for('admin_departments') }}" class="{% if request.endpoint == 'admin_departments' %}active{% endif %}">
+            <span class="nav-icon">🏫</span> Departments (5)
+        </a>
+        <a href="{{ url_for('admin_courses') }}" class="{% if request.endpoint == 'admin_courses' %}active{% endif %}">
+            <span class="nav-icon">🎓</span> Courses (13)
+        </a>
+        <a href="{{ url_for('admin_classes') }}" class="{% if request.endpoint == 'admin_classes' %}active{% endif %}">
+            <span class="nav-icon">📚</span> Annual Classes
+        </a>
+        <a href="{{ url_for('admin_tutor_assignment') }}" class="{% if request.endpoint == 'admin_tutor_assignment' %}active{% endif %}">
+            <span class="nav-icon">👩‍🏫</span> Tutor Assignment
+        </a>
+        <a href="{{ url_for('admin_hod_assignment') }}" class="{% if request.endpoint == 'admin_hod_assignment' %}active{% endif %}">
+            <span class="nav-icon">🏛️</span> HOD Assignment
+        </a>
+        <a href="{{ url_for('admin_reports') }}" class="{% if request.endpoint == 'admin_reports' %}active{% endif %}">
+            <span class="nav-icon">📑</span> Master Reports
+        </a>
+        <a href="{{ url_for('admin_audit_logs') }}" class="{% if request.endpoint == 'admin_audit_logs' %}active{% endif %}">
+            <span class="nav-icon">📜</span> Institutional Audit
+        </a>
+
+        {% elif session.get('role') == 'student' %}
+        <div class="nav-section-title">Student Services</div>
+        <a href="{{ url_for('student_dashboard') }}" class="{% if request.endpoint == 'student_dashboard' %}active{% endif %}">
+            <span class="nav-icon">🏠</span> Dashboard
+        </a>
+        <a href="{{ url_for('student_new_request') }}" class="{% if request.endpoint == 'student_new_request' %}active{% endif %}">
+            <span class="nav-icon">➕</span> Apply Gate Pass
+        </a>
+        <a href="{{ url_for('student_my_requests') }}" class="{% if request.endpoint == 'student_my_requests' %}active{% endif %}">
+            <span class="nav-icon">📋</span> My Gate Passes
+        </a>
+        <a href="{{ url_for('student_history') }}" class="{% if request.endpoint == 'student_history' %}active{% endif %}">
+            <span class="nav-icon">📜</span> Exit History
+        </a>
+        <a href="{{ url_for('student_profile') }}" class="{% if request.endpoint == 'student_profile' %}active{% endif %}">
+            <span class="nav-icon">👤</span> My Profile
+        </a>
+
+        {% elif session.get('role') == 'tutor' %}
+        <div class="nav-section-title">Class Tutor Portal</div>
+        <a href="{{ url_for('tutor_dashboard') }}" class="{% if request.endpoint == 'tutor_dashboard' %}active{% endif %}">
+            <span class="nav-icon">🏠</span> Tutor Dashboard
+        </a>
+        <a href="{{ url_for('tutor_all_requests') }}" class="{% if request.endpoint == 'tutor_all_requests' %}active{% endif %}">
+            <span class="nav-icon">📋</span> Student Requests
+        </a>
+        <a href="{{ url_for('tutor_profile') }}" class="{% if request.endpoint == 'tutor_profile' %}active{% endif %}">
+            <span class="nav-icon">👤</span> My Profile
+        </a>
+
+        {% elif session.get('role') == 'hod' %}
+        <div class="nav-section-title">Department HOD Portal</div>
+        <a href="{{ url_for('hod_dashboard') }}" class="{% if request.endpoint == 'hod_dashboard' %}active{% endif %}">
+            <span class="nav-icon">🏛️</span> HOD Dashboard
+        </a>
+        <a href="{{ url_for('hod_all_requests') }}" class="{% if request.endpoint == 'hod_all_requests' %}active{% endif %}">
+            <span class="nav-icon">📋</span> Department Passes
+        </a>
+        <a href="{{ url_for('hod_reports') }}" class="{% if request.endpoint == 'hod_reports' %}active{% endif %}">
+            <span class="nav-icon">📊</span> Department Reports
+        </a>
+
+        {% elif session.get('role') == 'guard' %}
+        <div class="nav-section-title">Security &amp; Gate Control</div>
+        <a href="{{ url_for('guard_dashboard') }}" class="{% if request.endpoint == 'guard_dashboard' %}active{% endif %}">
+            <span class="nav-icon">🛡️</span> Security Desk
+        </a>
+        <a href="{{ url_for('guard_verify') }}" class="{% if request.endpoint == 'guard_verify' %}active{% endif %}">
+            <span class="nav-icon">📷</span> Scan / Verify Pass
+        </a>
+        <a href="{{ url_for('guard_history') }}" class="{% if request.endpoint == 'guard_history' %}active{% endif %}">
+            <span class="nav-icon">📜</span> Exit Log History
+        </a>
+        {% endif %}
+      {% endblock %}
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{{ url_for('logout') }}">
+        <span class="nav-icon">🚪</span> Sign Out
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <header class="top-bar">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+        <span class="top-bar-title">{% block page_title %}Dashboard{% endblock %}</span>
+      </div>
+      <div class="top-bar-actions">
+        <div style="position:relative;">
+          <button class="notification-btn" id="notifBtn" title="Notifications" onclick="markNotificationsRead('{{ session.get('role','') }}')">
+            🔔
+            {% if unread is defined and unread > 0 %}
+            <span class="notification-badge" id="notifBadge">{{ unread if unread < 10 else '9+' }}</span>
+            {% endif %}
+          </button>
+          <div class="notification-panel" id="notifPanel">
+            <div class="notification-panel-header">
+              <h4>🔔 Notifications</h4>
+              <span style="font-size:0.78rem;color:#90a4ae;">{{ unread if unread is defined else 0 }} unread</span>
+            </div>
+            {% if notifications is defined and notifications %}
+              {% for n in notifications[:8] %}
+              <div class="notification-item {% if not n['is_read'] %}unread{% endif %}">
+                {{ n['message'] }}
+                <div class="notification-time">{{ n['created_at'][:16] if n['created_at'] else '' }}</div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="notification-item" style="color:#90a4ae;text-align:center;padding:20px;">No notifications</div>
+            {% endif %}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+          <span style="font-size:0.85rem;font-weight:700;color:#0f172a;">{{ session.get('username','') }}</span>
+          <span style="font-size:0.72rem;color:#64748b;text-transform:uppercase;font-weight:600;">{{ session.get('role','') }}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Flash Messages -->
+    <div class="flash-messages">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="toast toast-{{ category }}">
+          <span>{{ '✓' if category == 'success' else '⚠' if category == 'warning' else '✗' if category == 'danger' else 'ℹ' }}</span>
+          <span>{{ message }}</span>
+          <button class="toast-close">×</button>
+        </div>
+        {% endfor %}
+      {% endwith %}
+    </div>
+
+    <main class="page-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

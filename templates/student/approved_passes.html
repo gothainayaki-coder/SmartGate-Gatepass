@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Approved Passes – SmartGate{% endblock %}
+{% block page_title %}Approved Gate Passes{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Student Portal</div>
+<a href="{{ url_for('student_dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+<a href="{{ url_for('student_new_request') }}"><span class="nav-icon">➕</span> Request Gate Pass</a>
+<a href="{{ url_for('student_my_requests') }}"><span class="nav-icon">📋</span> My Requests</a>
+<a href="{{ url_for('student_approved_passes') }}" class="active"><span class="nav-icon">✅</span> Approved Passes</a>
+<a href="{{ url_for('student_history') }}"><span class="nav-icon">📜</span> History</a>
+<a href="{{ url_for('student_profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;">
+    <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">✅ Approved Gate Passes</h1>
+    <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">Official authorized gate passes ready for security gate verification</p>
+</div>
+
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.03);">
+    <div class="card-header" style="padding:16px 24px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+        <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">Active &amp; Authorized Passes ({{ passes|length }})</h3>
+    </div>
+    <div class="card-body" style="padding:0;">
+        {% if passes %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pass Code</th>
+                        <th>Date</th>
+                        <th>Reason</th>
+                        <th>Destination</th>
+                        <th>Departure Time</th>
+                        <th>Status</th>
+                        <th>QR Pass</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in passes %}
+                    <tr>
+                        <td>
+                            <strong style="font-family:monospace;color:#2563eb;font-size:0.95rem;">{{ p['pass_code'] }}</strong>
+                        </td>
+                        <td style="white-space:nowrap;font-size:0.88rem;color:#334155;font-weight:600;">{{ p['request_date'] }}</td>
+                        <td style="max-width:240px;">
+                            <div style="font-size:0.88rem;color:#0f172a;font-weight:600;">{{ p['reason'][:45] }}{% if p['reason']|length > 45 %}…{% endif %}</div>
+                        </td>
+                        <td style="font-size:0.85rem;color:#64748b;">{{ p['destination'] }}</td>
+                        <td style="font-size:0.85rem;color:#0f172a;font-weight:700;">{{ p['exit_time'] }}</td>
+                        <td>
+                            {% set s = p['status'] %}
+                            {% if s == 'APPROVED' %}
+                            <span class="badge badge-approved">✅ Ready for Exit</span>
+                            {% elif s == 'OUTSIDE' or s == 'COMPLETED' %}
+                            <span class="badge badge-completed">✔ Exited / Completed</span>
+                            {% else %}
+                            <span class="badge">{{ s }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('student_pass', req_id=p['id']) }}" class="btn btn-primary btn-sm" style="font-size:0.8rem;padding:6px 14px;font-weight:700;">
+                                🪪 Show QR Pass
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">✅</div>
+            <h3>No Approved Gate Passes</h3>
+            <p>You have no active approved gate passes at this time. Once your Class Tutor recommends and HOD approves your request, your pass will appear here.</p>
+            <a href="{{ url_for('student_new_request') }}" class="btn btn-primary" style="margin-top:16px;">
+                ➕ Request Gate Pass
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

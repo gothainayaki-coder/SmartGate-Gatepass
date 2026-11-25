@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% block title %}Verify Gate Pass – Main Gate{% endblock %}
+{% block page_title %}Gate Pass Verification Terminal{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Security &amp; Gate Control</div>
+<a href="{{ url_for('guard_dashboard') }}"><span class="nav-icon">🛡️</span> Security Desk</a>
+<a href="{{ url_for('guard_verify') }}" class="active"><span class="nav-icon">📷</span> Scan / Verify Pass</a>
+<a href="{{ url_for('guard_history') }}"><span class="nav-icon">📜</span> Exit Log History</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+        <a href="{{ url_for('guard_dashboard') }}" class="btn btn-outline btn-sm">← Back to Terminal</a>
+        <div>
+            <h1 style="font-size:1.4rem;font-weight:800;color:#0f172a;margin:0;">📷 Main Gate Verification Terminal</h1>
+            <p style="color:#64748b;font-size:0.85rem;margin:2px 0 0;">Verify student authorization code or scan digital QR pass for campus departure</p>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;align-items:start;">
+    <!-- Manual Alphanumeric Code Verification Form -->
+    <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+        <div class="card-header" style="padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+            <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">⌨️ Manual Pass Code Search</h3>
+            <span class="badge badge-normal">Quick Lookup</span>
+        </div>
+        <div class="card-body" style="padding:20px;">
+            <form method="POST" action="{{ url_for('guard_verify') }}">
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label" style="font-size:0.82rem;font-weight:700;color:#1e293b;display:block;margin-bottom:6px;">
+                        Pass Code Identifier
+                    </label>
+                    <input type="text" name="pass_code" class="form-control" placeholder="e.g. SRCW-26-4B81F2" style="font-family:monospace;font-size:1.1rem;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;" required autofocus value="{{ searched_code }}">
+                    <span style="font-size:0.75rem;color:#64748b;margin-top:4px;display:block;">Printed under the student's digital QR code pass.</span>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;padding:12px;font-weight:800;font-size:0.95rem;">
+                    🔍 Verify Pass Code
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Camera Scanner -->
+    <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+        <div class="card-header" style="padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+            <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">📷 Camera QR Scanner</h3>
+            <span class="badge badge-approved">Live Web Scanner</span>
+        </div>
+        <div class="card-body" style="text-align:center;padding:20px;">
+            <div id="scannerContainer" style="position:relative;width:100%;max-width:280px;height:180px;margin:0 auto 14px;background:#0f172a;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                <video id="qrVideo" style="width:100%;height:100%;object-fit:cover;display:none;"></video>
+                <div id="scannerPlaceholder" style="color:rgba(255,255,255,0.7);font-size:0.82rem;padding:16px;">
+                    <div style="font-size:2rem;margin-bottom:6px;">📷</div>
+                    Click "Start Camera" to scan student's QR pass directly
+                </div>
+            </div>
+            <button type="button" id="startCameraBtn" class="btn btn-outline btn-sm" style="font-weight:700;">
+                ▶ Start Camera Scanner
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Verification Results Display -->
+{% if verification_status %}
+<div class="card" style="border:2px solid {% if verification_status == 'VALID' %}#10b981{% elif verification_status == 'ALREADY_EXITED' %}#3b82f6{% else %}#ef4444{% endif %};border-radius:16px;overflow:hidden;margin-bottom:24px;">
+    <div class="card-header" style="padding:16px 24px;background:{% if verification_status == 'VALID' %}#ecfdf5{% elif verification_status == 'ALREADY_EXITED' %}#eff6ff{% else %}#fef2f2{% endif %};display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:1.5rem;">
+                {% if verification_status == 'VALID' %}✅{% elif verification_status == 'ALREADY_EXITED' %}✔{% else %}❌{% endif %}
+            </span>
+            <h3 style="margin:0;font-size:1.1rem;color:{% if verification_status == 'VALID' %}#065f46{% elif verification_status == 'ALREADY_EXITED' %}#1e40af{% else %}#991b1b{% endif %};">
+                {{ message }}
+            </h3>
+        </div>
+        <span class="badge {% if verification_status == 'VALID' %}badge-approved{% elif verification_status == 'ALREADY_EXITED' %}badge-completed{% else %}badge-rejected{% endif %}" style="font-size:0.85rem;padding:6px 14px;">
+            {{ 'READY FOR EXIT' if verification_status == 'VALID' else 'PASS COMPLETED' if verification_status == 'ALREADY_EXITED' else 'VERIFICATION FAILED' }}
+        </span>
+    </div>
+
+    {% if pass_info and verification_status == 'VALID' %}
+    <div class="card-body" style="padding:24px;">
+        <div style="display:grid;grid-template-columns:130px 1fr;gap:24px;align-items:start;margin-bottom:24px;">
+            <!-- Student Photo -->
+            <div style="text-align:center;">
+                <div class="student-photo-large" style="width:120px;height:120px;margin:0 auto 10px;font-size:2.5rem;border-radius:14px;overflow:hidden;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;">
+                    {% if pass_info['photo'] %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ pass_info['photo']) }}" alt="Photo" style="width:100%;height:100%;object-fit:cover;">
+                    {% else %}
+                    {{ pass_info['student_name'][0] }}
+                    {% endif %}
+                </div>
+                <span class="badge badge-approved" style="font-family:monospace;font-weight:700;">{{ pass_info['register_number'] }}</span>
+            </div>
+
+            <!-- Student & Pass Particulars -->
+            <div>
+                <h2 style="font-size:1.4rem;color:#0f172a;margin:0 0 4px;font-weight:800;">{{ pass_info['student_name'] }}</h2>
+                <div style="font-size:0.86rem;color:#64748b;margin-bottom:16px;">
+                    {{ pass_info['dept_name'] }} · {{ pass_info['class_name'] or pass_info['course_name'] }} ({{ pass_info['student_type'] }})
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.88rem;background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;">
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Pass Code</span>
+                        <strong style="color:#1e3a8a;font-family:monospace;font-size:1rem;">{{ pass_info['pass_code'] }}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Permitted Exit</span>
+                        <strong style="color:#2563eb;font-size:1rem;">⏰ {{ pass_info['exit_time'] }}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Destination</span>
+                        <strong>{{ pass_info['destination'] }}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Parent Contact</span>
+                        <strong style="color:#dc2626;">📞 {{ pass_info['parent_phone'] }}</strong>
+                    </div>
+                    <div style="grid-column:span 2;">
+                        <span style="color:#64748b;font-size:0.75rem;font-weight:700;text-transform:uppercase;display:block;">Reason</span>
+                        <p style="margin:2px 0 0;font-weight:600;">{{ pass_info['reason'] }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exit Authorization Confirmation Box (Unidirectional - No Return) -->
+        <div style="background:#ecfdf5;border:1.5px solid #10b981;padding:20px 24px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+            <div>
+                <strong style="color:#065f46;font-size:1.05rem;display:block;">Authorize Student Departure</strong>
+                <p style="color:#047857;font-size:0.85rem;margin:2px 0 0;">
+                    Click below to record the actual departure time in institutional logs. College operations conclude at 2:00 PM; pass will be marked COMPLETED.
+                </p>
+            </div>
+            <form method="POST" action="{{ url_for('guard_confirm_exit', req_id=pass_info['request_id']) }}">
+                <button type="submit" class="btn btn-primary" style="padding:14px 28px;font-size:1rem;font-weight:800;background:#10b981;border-color:#10b981;" onclick="return confirm('Authorize and confirm exit for {{ pass_info['student_name'] }}?');">
+                    🚪 CONFIRM STUDENT EXIT →
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- QR Scanner Support Script -->
+<script src="{{ url_for('static', filename='js/jsQR.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startBtn = document.getElementById('startCameraBtn');
+    const video = document.getElementById('qrVideo');
+    const placeholder = document.getElementById('scannerPlaceholder');
+
+    if (startBtn && video) {
+        startBtn.addEventListener('click', function() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Camera access is not supported by your browser. Please enter the pass code manually.');
+                return;
+            }
+            startBtn.disabled = true;
+            startBtn.innerText = 'Camera Active - Scan QR...';
+            placeholder.style.display = 'none';
+            video.style.display = 'block';
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.setAttribute('playsinline', true);
+                    video.play();
+                    requestAnimationFrame(scanTick);
+                })
+                .catch(function(err) {
+                    console.error('Camera error:', err);
+                    alert('Could not access camera: ' + err.message);
+                    startBtn.disabled = false;
+                    startBtn.innerText = '▶ Start Camera Scanner';
+                    placeholder.style.display = 'block';
+                    video.style.display = 'none';
+                });
+
+            function scanTick() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    if (window.jsQR) {
+                        const code = jsQR(imgData.data, imgData.width, imgData.height, {
+                            inversionAttempts: 'dontInvert'
+                        });
+                        if (code && code.data) {
+                            try {
+                                const parsed = JSON.parse(code.data);
+                                if (parsed.pass_code) {
+                                    window.location.href = `/guard/verify?pass_code=${encodeURIComponent(parsed.pass_code)}`;
+                                    return;
+                                }
+                            } catch (e) {
+                                // If plain text pass code
+                                window.location.href = `/guard/verify?pass_code=${encodeURIComponent(code.data)}`;
+                                return;
+                            }
+                        }
+                    }
+                }
+                requestAnimationFrame(scanTick);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

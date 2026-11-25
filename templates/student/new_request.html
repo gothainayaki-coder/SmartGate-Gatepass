@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Apply Gate Pass{% endblock %}
+{% block page_title %}Apply for Gate Pass{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Student Portal</div>
+<a href="{{ url_for('student_dashboard') }}"><span class="nav-icon">🏠</span> Dashboard</a>
+<a href="{{ url_for('student_new_request') }}" class="active"><span class="nav-icon">➕</span> Apply Gate Pass</a>
+<a href="{{ url_for('student_my_requests') }}"><span class="nav-icon">📋</span> My Gate Passes</a>
+<a href="{{ url_for('student_history') }}"><span class="nav-icon">📜</span> Exit History</a>
+<a href="{{ url_for('student_profile') }}"><span class="nav-icon">👤</span> My Profile</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;">
+    <h1 style="font-size:1.6rem;font-weight:800;color:#0f172a;">➕ Gate Pass Application</h1>
+    <p style="color:#64748b;font-size:0.9rem;">
+        Complete the form below. Your application will be reviewed by your <strong>Class Tutor</strong> and approved by the <strong>Head of Department (HOD)</strong>.
+    </p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;">
+    <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+        <div class="card-header" style="padding:18px 24px;border-bottom:1px solid #f1f5f9;">
+            <h3 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin:0;">📝 Departure Request Form</h3>
+        </div>
+        <div class="card-body" style="padding:24px;">
+            <form method="POST" action="{{ url_for('student_new_request') }}">
+                <!-- Student Profile Info (Read-Only) -->
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:20px;">
+                    <div style="font-size:0.8rem;font-weight:800;text-transform:uppercase;color:#2563eb;letter-spacing:0.8px;margin-bottom:12px;">
+                        Student Academic Details
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.88rem;">
+                        <div>
+                            <span style="color:#64748b;font-size:0.78rem;display:block;">Full Name</span>
+                            <strong>{{ student['name'] }}</strong>
+                        </div>
+                        <div>
+                            <span style="color:#64748b;font-size:0.78rem;display:block;">Register Number</span>
+                            <strong>{{ student['register_number'] }}</strong>
+                        </div>
+                        <div>
+                            <span style="color:#64748b;font-size:0.78rem;display:block;">Department</span>
+                            <span>{{ student['dept_name'] }}</span>
+                        </div>
+                        <div>
+                            <span style="color:#64748b;font-size:0.78rem;display:block;">Course &amp; Class</span>
+                            <span>{{ student['class_name'] or student['course_name'] }}</span>
+                        </div>
+                        <div>
+                            <span style="color:#64748b;font-size:0.78rem;display:block;">Parent Contact</span>
+                            <span>{{ student['parent_phone'] or 'Not Provided' }}</span>
+                        </div>
+                        <div>
+                            <span style="color:#64748b;font-size:0.78rem;display:block;">Category</span>
+                            <span>{{ student['student_type'] }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Departure Information -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                    <div class="form-group">
+                        <label class="form-label">Category of Reason <span style="color:#ef4444;">*</span></label>
+                        <select name="reason_cat" class="form-control" required>
+                            <option value="Medical Emergency">🏥 Medical / Doctor Appointment</option>
+                            <option value="Official College Work">🏛️ Official College Work</option>
+                            <option value="Personal / Family">🏠 Personal / Family Requirement</option>
+                            <option value="Academic / Competition">🏆 Academic Seminar / Competition</option>
+                            <option value="Other Reason">📌 Other Purpose</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Priority Type</label>
+                        <select name="request_type" class="form-control">
+                            <option value="Normal">🟢 Normal Departure</option>
+                            <option value="Urgent">🔴 Urgent Departure</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label">Reason Explanation <span style="color:#ef4444;">*</span></label>
+                    <textarea name="reason_detail" class="form-control" rows="2" placeholder="Describe the specific purpose of leaving campus..." required></textarea>
+                </div>
+
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label">Destination Location <span style="color:#ef4444;">*</span></label>
+                    <input type="text" name="destination" class="form-control" placeholder="e.g. Coimbatore Medical Centre, Gandhipuram, Home" required>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+                    <div class="form-group">
+                        <label class="form-label">Departure Date <span style="color:#ef4444;">*</span></label>
+                        <input type="date" name="request_date" class="form-control" id="requestDateInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Permitted Exit Time <span style="color:#ef4444;">*</span></label>
+                        <input type="time" name="exit_time" class="form-control" required>
+                    </div>
+                </div>
+
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.82rem;color:#1e40af;">
+                    ℹ️ <strong>Exit-Only Policy:</strong> Sri Ramakrishna College of Arts &amp; Science for Women concludes daily operations at 2:00 PM. Gate passes authorize departure only. No return check-in is required.
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%;padding:14px;font-size:0.95rem;font-weight:800;border-radius:10px;">
+                    📨 Submit to Class Tutor for Approval
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Policy & Process Card -->
+    <div>
+        <div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+            <h4 style="font-size:1rem;font-weight:800;color:#0f172a;margin-bottom:14px;">Approval Route</h4>
+            <div style="display:flex;flex-direction:column;gap:14px;font-size:0.85rem;">
+                <div style="display:flex;gap:10px;align-items:start;">
+                    <div style="width:24px;height:24px;border-radius:50%;background:#eff6ff;color:#2563eb;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+                    <div>
+                        <strong style="color:#0f172a;display:block;">Class Tutor Verification</strong>
+                        <span style="color:#64748b;">Verifies student academic status and reason.</span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:10px;align-items:start;">
+                    <div style="width:24px;height:24px;border-radius:50%;background:#eff6ff;color:#2563eb;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+                    <div>
+                        <strong style="color:#0f172a;display:block;">Head of Department (HOD)</strong>
+                        <span style="color:#64748b;">Grants final approval and triggers digital QR code generation.</span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:10px;align-items:start;">
+                    <div style="width:24px;height:24px;border-radius:50%;background:#eff6ff;color:#2563eb;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+                    <div>
+                        <strong style="color:#0f172a;display:block;">Main Gate Verification</strong>
+                        <span style="color:#64748b;">Security guard verifies the QR code on student phone.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:24px;padding-top:18px;border-top:1px solid #f1f5f9;">
+                <h5 style="font-size:0.85rem;font-weight:800;color:#0f172a;margin-bottom:6px;">Important Instructions</h5>
+                <ul style="padding-left:16px;color:#64748b;font-size:0.78rem;line-height:1.6;margin:0;">
+                    <li>Ensure parent contact number is functional.</li>
+                    <li>Submit applications with reasonable advance notice.</li>
+                    <li>Emergency passes are expedited directly.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Set default date to today and minimum to today
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('requestDateInput');
+    dateInput.value = today;
+    dateInput.min = today;
+</script>
+{% endblock %}

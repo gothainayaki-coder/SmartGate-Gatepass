@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Department Reports – HOD Portal{% endblock %}
+{% block page_title %}Department Gate Pass Reports{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Department HOD Portal</div>
+<a href="{{ url_for('hod_dashboard') }}"><span class="nav-icon">🏛️</span> HOD Dashboard</a>
+<a href="{{ url_for('hod_all_requests') }}"><span class="nav-icon">📋</span> Department Passes</a>
+<a href="{{ url_for('hod_reports') }}" class="active"><span class="nav-icon">📊</span> Department Reports</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">📊 Department Pass Analytics &amp; Reports</h1>
+        <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">
+            Department of <strong>{{ hod['dept_name'] if hod else '' }}</strong> · Exit Permission Audit Records
+        </p>
+    </div>
+    <div style="display:flex;gap:10px;">
+        <a href="{{ url_for('hod_reports', start_date=start_date, end_date=end_date, status=current_status, export='csv') }}" class="btn btn-outline btn-sm">
+            📥 Export to CSV
+        </a>
+        <button onclick="window.print()" class="btn btn-primary btn-sm">🖨️ Print Report</button>
+    </div>
+</div>
+
+<!-- Date & Status Filter Bar -->
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:18px 24px;margin-bottom:24px;">
+    <form method="GET" action="{{ url_for('hod_reports') }}" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) 120px;gap:14px;align-items:end;">
+        <div>
+            <label style="display:block;font-size:0.78rem;font-weight:700;color:#64748b;margin-bottom:4px;">From Date</label>
+            <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+        </div>
+        <div>
+            <label style="display:block;font-size:0.78rem;font-weight:700;color:#64748b;margin-bottom:4px;">To Date</label>
+            <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+        </div>
+        <div>
+            <label style="display:block;font-size:0.78rem;font-weight:700;color:#64748b;margin-bottom:4px;">Pass Status</label>
+            <select name="status" class="form-control">
+                <option value="ALL" {% if current_status == 'ALL' %}selected{% endif %}>All Statuses</option>
+                <option value="APPROVED" {% if current_status == 'APPROVED' %}selected{% endif %}>Approved</option>
+                <option value="COMPLETED" {% if current_status == 'COMPLETED' %}selected{% endif %}>Completed (Exited)</option>
+                <option value="REJECTED" {% if current_status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-primary btn-sm" style="width:100%;padding:10px;font-weight:700;">Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Records Table -->
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+    <div class="card-header" style="padding:16px 24px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="font-size:1.05rem;font-weight:800;color:#0f172a;margin:0;">Audit Records ({{ records|length }} Found)</h3>
+    </div>
+    <div class="card-body" style="padding:0;">
+        {% if records %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pass Code</th>
+                        <th>Student</th>
+                        <th>Register No</th>
+                        <th>Course &amp; Class</th>
+                        <th>Permitted Exit</th>
+                        <th>Destination</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Gate Departure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in records %}
+                    <tr>
+                        <td style="font-family:monospace;font-weight:700;color:#1e3a8a;">
+                            {{ r['pass_code'] or ('#' ~ r['id']) }}
+                        </td>
+                        <td style="font-weight:700;color:#0f172a;">{{ r['student_name'] }}</td>
+                        <td style="font-family:monospace;">{{ r['register_number'] }}</td>
+                        <td>{{ r['class_name'] }}</td>
+                        <td>{{ r['request_date'] }} {{ r['exit_time'] }}</td>
+                        <td>{{ r['destination'] }}</td>
+                        <td>{{ r['reason'][:28] }}{% if r['reason']|length > 28 %}…{% endif %}</td>
+                        <td>
+                            {% set s = r['status'] %}
+                            {% if s == 'APPROVED' %}
+                            <span class="badge badge-approved">Approved</span>
+                            {% elif s in ('OUTSIDE', 'COMPLETED') %}
+                            <span class="badge badge-completed">Completed</span>
+                            {% elif 'REJECTED' in s %}
+                            <span class="badge badge-rejected">Rejected</span>
+                            {% else %}
+                            <span class="badge badge-normal">{{ s }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:0.8rem;color:#166534;font-weight:600;">
+                            {{ r['actual_exit_time'][:16] if r['actual_exit_time'] else 'Not Yet Exited' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:48px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:10px;">📊</div>
+            <h3 style="color:#0f172a;font-weight:800;margin-bottom:6px;">No Records Match Search</h3>
+            <p style="color:#64748b;font-size:0.88rem;margin:0;">Try adjusting your date range or filter criteria.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

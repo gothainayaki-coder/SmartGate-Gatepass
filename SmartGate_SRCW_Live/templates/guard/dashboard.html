@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Main Gate Security Desk{% endblock %}
+{% block page_title %}Security &amp; Gate Verification Terminal{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section-title">Security &amp; Gate Control</div>
+<a href="{{ url_for('guard_dashboard') }}" class="active"><span class="nav-icon">🛡️</span> Security Desk</a>
+<a href="{{ url_for('guard_verify') }}"><span class="nav-icon">📷</span> Scan / Verify Pass</a>
+<a href="{{ url_for('guard_history') }}"><span class="nav-icon">📜</span> Exit Log History</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0f172a;margin:0;">Main Gate Security Terminal 🛡️</h1>
+        <p style="color:#64748b;font-size:0.86rem;margin:4px 0 0;">
+            Station: <strong>Main Campus Gate</strong> · Security Guard: <strong>{{ guard['name'] if guard else session['username'] }}</strong> ({{ guard['shift'] if guard else 'General' }} Shift)
+        </p>
+    </div>
+    <a href="{{ url_for('guard_verify') }}" class="btn btn-primary" style="padding:12px 24px;font-size:0.95rem;font-weight:800;box-shadow:0 4px 14px rgba(37,99,235,0.3);">
+        📷 Scan / Verify Gate Pass →
+    </a>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-icon green">🚪</div>
+        <div>
+            <div class="stat-number">{{ exits_today }}</div>
+            <div class="stat-label">Exits Verified Today</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">⏳</div>
+        <div>
+            <div class="stat-number">{{ pending_approved }}</div>
+            <div class="stat-label">Authorized Passes Awaiting Exit</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">✔</div>
+        <div>
+            <div class="stat-number">{{ total_completed }}</div>
+            <div class="stat-label">Total Completed Exits</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Pass Code Lookup -->
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 24px;margin-bottom:24px;">
+    <form method="GET" action="{{ url_for('guard_verify') }}" style="display:flex;gap:12px;max-width:600px;align-items:center;">
+        <input type="text" name="pass_code" class="form-control" placeholder="Enter Pass Code (e.g. SRCW-26-XXXXXX)..." style="font-family:monospace;font-weight:700;letter-spacing:1px;font-size:1rem;" required autofocus>
+        <button type="submit" class="btn btn-primary" style="font-weight:800;padding:12px 24px;white-space:nowrap;">
+            🔍 Verify Code
+        </button>
+    </form>
+</div>
+
+<!-- Recent Exits Today -->
+<div class="card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
+    <div class="card-header" style="padding:18px 24px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <h3 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin:0;">🚪 Recent Departures Verified Today</h3>
+            <span class="badge badge-completed">{{ recent_exits|length }} Recorded</span>
+        </div>
+        <a href="{{ url_for('guard_history') }}" class="btn btn-outline btn-sm">Full Gate History →</a>
+    </div>
+    <div class="card-body" style="padding:0;">
+        {% if recent_exits %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pass Code</th>
+                        <th>Student</th>
+                        <th>Register No</th>
+                        <th>Department</th>
+                        <th>Destination</th>
+                        <th>Departure Log Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in recent_exits %}
+                    <tr>
+                        <td style="font-family:monospace;font-weight:800;color:#1e3a8a;">
+                            {{ r['pass_code'] }}
+                        </td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:32px;height:32px;border-radius:6px;background:#2563eb;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:0.8rem;overflow:hidden;">
+                                    {% if r['photo'] %}
+                                    <img src="{{ url_for('static', filename='uploads/' ~ r['photo']) }}" alt="Photo" style="width:100%;height:100%;object-fit:cover;">
+                                    {% else %}
+                                    {{ r['student_name'][0] }}
+                                    {% endif %}
+                                </div>
+                                <strong style="color:#0f172a;">{{ r['student_name'] }}</strong>
+                            </div>
+                        </td>
+                        <td style="font-family:monospace;font-weight:700;">{{ r['register_number'] }}</td>
+                        <td>{{ r['course_name'] or r['dept_code'] }}</td>
+                        <td>{{ r['destination'] }}</td>
+                        <td style="color:#166534;font-weight:700;">
+                            {{ r['actual_exit_time'][11:16] if r['actual_exit_time'] else '' }}
+                        </td>
+                        <td>
+                            <span class="badge badge-completed">✔ Exited</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:48px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:10px;">🚪</div>
+            <h3 style="color:#0f172a;font-weight:800;margin-bottom:6px;">No Departures Logged Today</h3>
+            <p style="color:#64748b;font-size:0.88rem;margin:0;">Students verified at the main gate will appear here in real time.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
